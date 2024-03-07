@@ -63,7 +63,7 @@ local Update5 = {
 	["Secret Key Upper Half"] = 20000
 }
 
-wait(10)
+wait(1)
 game:GetService("RunService"):Set3dRenderingEnabled(false)
 local Booths_Broadcast = game:GetService("ReplicatedStorage").Network:WaitForChild("Booths_Broadcast")
 local Players = game:GetService('Players')
