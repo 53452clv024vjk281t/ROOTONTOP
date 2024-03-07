@@ -1,9 +1,3 @@
-_G.autoTele = true
-
-while _G.autoTele do task.wait(1200)
-  game:GetService("TeleportService"):Teleport(15502339080,game.Players.LocalPlayer)
-end
-
 local osclock = os.clock()
 repeat task.wait(1) until game:IsLoaded()
 
@@ -396,12 +390,3 @@ task.spawn(function ()
         end
     end
 end)
-
-repeat wait() until game:IsLoaded()
-wait(40)
-game:GetService("NetworkClient").ChildRemoved:Connect(function()
-    while true do
-        Instance.new("Part").Parent = game.Workspace
-    end
-end)
-
