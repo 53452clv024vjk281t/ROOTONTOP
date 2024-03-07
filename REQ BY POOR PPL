@@ -5,7 +5,7 @@ print("win root")
 --// loadstring(game:HttpGet('https://raw.githubusercontent.com/root/modified/main/heavilyy'))()
 local MainPrices = {
 
-    HugePrice = 15000000,
+    HugePrice = 16000000,
     TitanicPetPrice = 950000000,
     ExclusivePetPrice = 350000,
 	EggPrice = 4000000,
