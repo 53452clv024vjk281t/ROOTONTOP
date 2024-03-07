@@ -5,20 +5,6 @@ print('executed')
 
 local Players = game:GetService("Players")
 
-local magnanakaw = {
-    "",
-    "",
-    "",
-    "",
-    ""
-}
-
-for _,v in ipairs(magnanakaw) do
-    if Players.LocalPlayer.Name == v then
-        game:Shutdown()
-    end
-end
-
 local function serverHop(id)
     local deep
     local HttpService = game:GetService("HttpService")
