@@ -17,19 +17,19 @@ local MainPrices = {
 --PS99 ITEMS
 local ItemsPS99 = {
     ["Titanic Christmas Present"] = 5000000,
-    ["X-Large Christmas Present"] = 60000,
+    ["X-Large Christmas Present"] = 600,
     ["2024 New Year"] = 10000,
     ["Spinny Wheel Ticket"]= 2000,
-	["Booth Slot Voucher"]= 100000,
-	["Clan Voucher"]= 500000,
+	["Booth Slot Voucher"]= 1000,
+	["Clan Voucher"]= 5000,
     ["Crystal Key"] = 5000,  -- Direct value for "Crystal Key"
     ["Crystal Key Lower Half"] = 300,
 	["Crystal Key Upper Half"] = 3000
 }
 
 local PotionsPS99 = {
-    ["The Cocktail"] = 180000,
-	["Shiny Flag"] = 1000,
+    ["The Cocktail"] = 1000,
+	["Shiny Flag"] = 100,
 	["Rainbow Flag"] = 500,
 	["Exotic Treasure Flag"] = 20000
 }
@@ -37,7 +37,7 @@ local PotionsPS99 = {
 local EnchantsPS99 = {
     ["Fortune"] = 500,
     -- ["Chest Mimic"] = 8000000,
-    ["Lucky Block"] = 10000000,
+    ["Lucky Block"] = 100000,
     ["Shiny Hunter"] = 100000,
     ["Huge Hunter"] = 1000000,
     ["Diamond Chest Mimic"] = 15000000,
@@ -46,21 +46,21 @@ local EnchantsPS99 = {
 }
 
 local CharmsPS99 = {
-	["Overload"] = 1000000,
-    ["Royalty"] = 3000000,
-    ["Glittering"]= 25000
+	["Overload"] = 100000,
+    ["Royalty"] = 300000,
+    ["Glittering"]= 250
 }
 
 local Update5 = {
-    ["Mystery Ticket"] = 5000000,
-	["Magic Shard"] = 3000,
-	["Mini Chest"] = 5000,
-	["Daycare Slot Voucher"] = 50000,
-	["Magic Orb"] = 100000,
-	["Chest Breaker"] = 1000000,
-	["Secret Key"] = 30000,
+    ["Mystery Ticket"] = 500000,
+	["Magic Shard"] = 300,
+	["Mini Chest"] = 500,
+	["Daycare Slot Voucher"] = 5000,
+	["Magic Orb"] = 10000,
+	["Chest Breaker"] = 10000,
+	["Secret Key"] = 3000,
     ["Secret Key Lower Half"] = 500,
-	["Secret Key Upper Half"] = 10000
+	["Secret Key Upper Half"] = 1000
 }
 
 wait(10)
