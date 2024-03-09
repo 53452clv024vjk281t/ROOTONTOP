@@ -5,7 +5,7 @@ print("booty works V7")
 --// loadstring(game:HttpGet('https://raw.githubusercontent.com/jishi/modified/main/heavilyy'))()
 local MainPrices = {
 
-    HugePrice = 17000000,
+    HugePrice = 17500000,
     TitanicPetPrice = 950000000,
     ExclusivePetPrice = 350000,
 	EggPrice = 4000000,
@@ -16,7 +16,7 @@ local MainPrices = {
 
 --PS99 ITEMS
 local ItemsPS99 = {
-    ["Titanic Christmas Present"] = 5000000,
+    ["Titanic Christmas Present"] = 8000000,
     ["X-Large Christmas Present"] = 600,
     ["2024 New Year"] = 10000,
     ["Spinny Wheel Ticket"]= 2000,
