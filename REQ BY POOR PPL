@@ -5,7 +5,7 @@ print("booty works V7")
 --// loadstring(game:HttpGet('https://raw.githubusercontent.com/jishi/modified/main/heavilyy'))()
 local MainPrices = {
 
-    HugePrice = 20500000,
+    HugePrice = 21900000,
     TitanicPetPrice = 950000000,
     ExclusivePetPrice = 600000,
 	EggPrice = 4000000,
