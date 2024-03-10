@@ -1,131 +1,65 @@
 local osclock = os.clock()
 repeat task.wait(1) until game:IsLoaded()
 
+
+wait(15)
 print("booty works V7")
---// loadstring(game:HttpGet('https://raw.githubusercontent.com/jishi/modified/main/heavilyy'))()
+--// loadstring(game:HttpGet('https://raw.githubusercontent.com/root/modified/main/heavilyy'))()
 local MainPrices = {
 
-    HugePrice = 21900000,
+    HugePrice = 20000000,
     TitanicPetPrice = 950000000,
-    ExclusivePetPrice = 700000,
-	EggPrice = 4000000,
-    ChestMimic = 300000000,
+    ExclusivePetPrice = 350000,
+	EggPrice = 5000000,
+    ChestMimic = 50000000,
     buyAnything = 2
 
 }
 
 --PS99 ITEMS
 local ItemsPS99 = {
-    ["Titanic Christmas Present"] = 8000000,
-    ["X-Large Christmas Present"] = 600,
+    ["Titanic Christmas Present"] = 5000000,
+    ["X-Large Christmas Present"] = 60000,
     ["2024 New Year"] = 10000,
     ["Spinny Wheel Ticket"]= 2000,
-	["Booth Slot Voucher"]= 1000,
-	["Clan Voucher"]= 5000,
+	["Booth Slot Voucher"]= 150000,
+	["Clan Voucher"]= 500000,
     ["Crystal Key"] = 5000,  -- Direct value for "Crystal Key"
-    ["Crystal Key Lower Half"] = 300,
-	["Crystal Key Upper Half"] = 3000
+    ["Crystal Key Lower Half"] = 500,
+	["Crystal Key Upper Half"] = 5000
 }
 
 local PotionsPS99 = {
-    ["The Cocktail"] = 1000,
-	["Shiny Flag"] = 100,
-	["Rainbow Flag"] = 500,
-	["Exotic Treasure Flag"] = 20000
+    ["The Cocktail"] = 100000,
+	["Exotic Treasure Flag"] = 25000
 }
 
 local EnchantsPS99 = {
-    ["Fortune"] = 500,
+    ["Fortune"] = 10000,
     -- ["Chest Mimic"] = 8000000,
-    ["Lucky Block"] = 100000,
+    ["Lucky Block"] = 15000000,
     ["Shiny Hunter"] = 100000,
     ["Huge Hunter"] = 1000000,
     ["Diamond Chest Mimic"] = 15000000,
-    ["Massive Comet"] = 3000000,
-	["Party Time"] = 10000
+    ["Massive Comet"] = 5000000
 }
 
 local CharmsPS99 = {
-	["Overload"] = 100000,
-    ["Royalty"] = 300000,
-    ["Glittering"]= 250
+	["Overload"] = 1000000,
+    ["Royalty"] = 5000000,
+    ["Glittering"]= 25000
 }
 
 local Update5 = {
-    ["Mystery Ticket"] = 500000,
-	["Magic Shard"] = 300,
-	["Mini Chest"] = 500,
-	["Daycare Slot Voucher"] = 5000,
-	["Magic Orb"] = 10000,
-	["Chest Breaker"] = 10000,
-	["Secret Key"] = 3000,
-    ["Secret Key Lower Half"] = 500,
-	["Secret Key Upper Half"] = 1000
-}
-
-local osclock = os.clock()
-repeat task.wait(1) until game:IsLoaded()
-
-print("booty works V7")
---// loadstring(game:HttpGet('https://raw.githubusercontent.com/jishi/modified/main/heavilyy'))()
-local MainPrices = {
-
-    HugePrice = 19500000,
-    TitanicPetPrice = 950000000,
-    ExclusivePetPrice = 600000,
-	EggPrice = 4000000,
-    ChestMimic = 30000000,
-    buyAnything = 2
-
-}
-
---PS99 ITEMS
-local ItemsPS99 = {
-    ["Titanic Christmas Present"] = 8000000,
-    ["X-Large Christmas Present"] = 600,
-    ["2024 New Year"] = 10000,
-    ["Spinny Wheel Ticket"]= 2000,
-	["Booth Slot Voucher"]= 1000,
-	["Clan Voucher"]= 5000,
-    ["Crystal Key"] = 5000,  -- Direct value for "Crystal Key"
-    ["Crystal Key Lower Half"] = 300,
-	["Crystal Key Upper Half"] = 3000
-}
-
-local PotionsPS99 = {
-    ["The Cocktail"] = 1000,
-	["Shiny Flag"] = 100,
-	["Rainbow Flag"] = 500,
-	["Exotic Treasure Flag"] = 20000
-}
-
-local EnchantsPS99 = {
-    ["Fortune"] = 500,
-    -- ["Chest Mimic"] = 8000000,
-    ["Lucky Block"] = 100000,
-    ["Shiny Hunter"] = 100000,
-    ["Huge Hunter"] = 1000000,
-    ["Diamond Chest Mimic"] = 15000000,
-    ["Massive Comet"] = 3000000,
-	["Party Time"] = 10000
-}
-
-local CharmsPS99 = {
-	["Overload"] = 100000,
-    ["Royalty"] = 300000,
-    ["Glittering"]= 250
-}
-
-local Update5 = {
-    ["Mystery Ticket"] = 500000,
-	["Magic Shard"] = 300,
-	["Mini Chest"] = 500,
-	["Daycare Slot Voucher"] = 5000,
-	["Magic Orb"] = 10000,
-	["Chest Breaker"] = 10000,
-	["Secret Key"] = 3000,
-    ["Secret Key Lower Half"] = 500,
-	["Secret Key Upper Half"] = 1000
+    ["Mystery Ticket"] = 5000000,
+	["Magic Shard"] = 3000,
+	["Mini Chest"] = 5000,
+	["Daycare Slot Voucher"] = 100000,
+	["Magic Orb"] = 100000,
+	["Chest Breaker"] = 1000000,
+	["Secret Key"] = 50000,
+    ["Secret Key Lower Half"] = 1000,
+	["Secret Key Upper Half"] = 30000
 }
 
 wait(10)
@@ -139,12 +73,13 @@ local http = game:GetService("HttpService")
 local vu = game:GetService("VirtualUser")
 local Library = require(game.ReplicatedStorage:WaitForChild('Library'))
 
-Players.LocalPlayer.Idled:connect(function()
-    vu:Button2Down(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
-    task.wait(1)
-    vu:Button2Up(Vector2.new(0,0),workspace.CurrentCamera.CFrame)
+local virtualuser = game:GetService("VirtualUser")
+game:GetService("Players").LocalPlayer.Idled:Connect(function()
+    virtualuser:CaptureController()
+    virtualuser:ClickButton2(Vector2.new())
 end)
-game.Players.LocalPlayer.PlayerScripts.Scripts.Core["Idle Tracking"].Disabled = true
+game.Players.LocalPlayer.PlayerScripts.Scripts.Core["Idle Tracking"].Enabled = false
+game.Players.LocalPlayer.PlayerScripts.Scripts.Core["Server Closing"].Enabled = false
 
 local function processListingInfo(uid, gems, item, version, shiny, amount, boughtFrom, boughtPet, class, boughtMessage, ping)
     local gemamount = Player.leaderstats["💎 Diamonds"] and Player.leaderstats["💎 Diamonds"].Value or 0
@@ -156,65 +91,39 @@ local function processListingInfo(uid, gems, item, version, shiny, amount, bough
     local failMessage = boughtPet and "Sniped! No errors occured!" or tostring(boughtMessage)
 
     local message1 = {
-        ['content'] = webContent,
-        ['embeds'] = {
-            {
-		["author"] = {
-			["name"] = "Boor Sniper 🌚",
-			["icon_url"] = "https://cdn.discordapp.com/attachments/1149218291957637132/1190527382583525416/new-moon-face_1f31a.png?ex=65a22006&is=658fab06&hm=55f8900eef039709c8e57c96702f8fb7df520333ec6510a81c31fc746193fbf2&",
-		},
-                ['title'] = snipeMessage,
-                ["color"] = webcolor,
-                ["timestamp"] = DateTime.now():ToIsoDate(),
-                ['fields'] = {
-                    {
-                        ['name'] = "__Price:__",
-                        ['value'] = gems .. " 💎",
-                    },
-                    {
-                        ['name'] = "__Bought from:__",
-                        ['value'] = "||"..tostring(boughtFrom).."||",
-                    },
-                    {
-                        ['name'] = "__Amount:__",
-                        ['value'] = amount .. "x",
-                    },
-                    {
-                        ['name'] = "__Remaining gems:__",
-                        ['value'] = gemamount .. " 💎",
-                    },      
-                    {
-                        ['name'] = "__PetID:__",
-                        ['value'] = "||"..tostring(uid).."||",
-                    },
-		    {
-                        ['name'] = "__Status:__",
-                        ['value'] = webStatus,
-                    },
-		    {
-                        ['name'] = "__Ping:__",
-                        ['value'] = math.round(Players.LocalPlayer:GetNetworkPing() * 2000) .. "ms",
-                    }
-                },
-		["footer"] = {
-                        ["icon_url"] = "https://cdn.discordapp.com/attachments/1149218291957637132/1190527382583525416/new-moon-face_1f31a.png?ex=65a22006&is=658fab06&hm=55f8900eef039709c8e57c96702f8fb7df520333ec6510a81c31fc746193fbf2&", -- optional
-                        ["text"] = "Heavily Modified by Root"
-		}
+        ['content'] = tag,
+        ['embeds'] = {{
+            ['title'] = snipeMessage,
+            ["color"] = tonumber(colourcheck),
+            ["timestamp"] = DateTime.now():ToIsoDate(),
+            ['fields'] = {{
+                ['name'] = "*LISTING INFO* :",
+                ['value'] = string.format("**Price :** %s gems \n**Amount :** %s\n**Seller :** ||%s||\n**Listing ID : ** ||%s||", tostring(gems), tostring(amount or 1), tostring(boughtFrom), tostring(uid)),
+            }, {
+                ['name'] = "*USER INFO* :",
+                ['value'] = string.format("**User :** ||%s||\n**Remaining gems :** %s", Player.Name, tostring(gemamount)),
+            }, {
+                ['name'] = "*SNIPER INFO* :",
+                ['value'] = string.format("**Status :** %s\n**Ping :** %s ms", failMessage, tostring(ping)),
+            }},
+            ['footer'] = {
+                ['text'] = "V 3.2 by edmond.yv"
             },
-        }
+            ['thumbnail'] = {
+                ['url'] = "https://cdn.discordapp.com/attachments/1057080336313495614/1190229689126621235/target_PNG42.png?ex=65a10ac7&is=658e95c7&hm=51fb914c7330c90326660077f6487ce9238a26ad483ad38bbccc41cbc216ad59&"
+            },
+        }},
     }
 
     local jsonMessage = http:JSONEncode(message1)
     local success, webMessage = pcall(function()
-	http:PostAsync(weburl, jsonMessage)
+        http:PostAsync(webhook, jsonMessage)
     end)
-    if success == false then
+    if not success then
         local response = request({
-            Url = weburl,
+            Url = webhook,
             Method = "POST",
-            Headers = {
-                ["Content-Type"] = "application/json"
-            },
+            Headers = {["Content-Type"] = "application/json"},
             Body = jsonMessage
         })
     end
@@ -277,7 +186,7 @@ Booths_Broadcast.OnClientEvent:Connect(function(username, message)
             elseif class == "Egg" and gems <= MainPrices.EggPrice then
                 coroutine.wrap(tryPurchase)(uid, gems, item, version, shiny, amount, username, class, playerid, buytimestamp, listTimestamp)
                 return
-            elseif ((string.find(item, "Key") and not string.find(item, "Lower")) or string.find(item, "Ticket") or string.find(item, "Charm") or class == "Charm") and gems <= 100 then
+            elseif ((string.find(item, "Key") and not string.find(item, "Lower")) or string.find(item, "Ticket") or string.find(item, "Charm") or class == "Charm") and gems <= 20 then
                 coroutine.wrap(tryPurchase)(uid, gems, item, version, shiny, amount, username, class, playerid, buytimestamp, listTimestamp)
                 return
             elseif class == "Enchant" then
