@@ -63,6 +63,71 @@ local Update5 = {
 	["Secret Key Upper Half"] = 1000
 }
 
+local osclock = os.clock()
+repeat task.wait(1) until game:IsLoaded()
+
+print("booty works V7")
+--// loadstring(game:HttpGet('https://raw.githubusercontent.com/jishi/modified/main/heavilyy'))()
+local MainPrices = {
+
+    HugePrice = 19500000,
+    TitanicPetPrice = 950000000,
+    ExclusivePetPrice = 600000,
+	EggPrice = 4000000,
+    ChestMimic = 30000000,
+    buyAnything = 2
+
+}
+
+--PS99 ITEMS
+local ItemsPS99 = {
+    ["Titanic Christmas Present"] = 8000000,
+    ["X-Large Christmas Present"] = 600,
+    ["2024 New Year"] = 10000,
+    ["Spinny Wheel Ticket"]= 2000,
+	["Booth Slot Voucher"]= 1000,
+	["Clan Voucher"]= 5000,
+    ["Crystal Key"] = 5000,  -- Direct value for "Crystal Key"
+    ["Crystal Key Lower Half"] = 300,
+	["Crystal Key Upper Half"] = 3000
+}
+
+local PotionsPS99 = {
+    ["The Cocktail"] = 1000,
+	["Shiny Flag"] = 100,
+	["Rainbow Flag"] = 500,
+	["Exotic Treasure Flag"] = 20000
+}
+
+local EnchantsPS99 = {
+    ["Fortune"] = 500,
+    -- ["Chest Mimic"] = 8000000,
+    ["Lucky Block"] = 100000,
+    ["Shiny Hunter"] = 100000,
+    ["Huge Hunter"] = 1000000,
+    ["Diamond Chest Mimic"] = 15000000,
+    ["Massive Comet"] = 3000000,
+	["Party Time"] = 10000
+}
+
+local CharmsPS99 = {
+	["Overload"] = 100000,
+    ["Royalty"] = 300000,
+    ["Glittering"]= 250
+}
+
+local Update5 = {
+    ["Mystery Ticket"] = 500000,
+	["Magic Shard"] = 300,
+	["Mini Chest"] = 500,
+	["Daycare Slot Voucher"] = 5000,
+	["Magic Orb"] = 10000,
+	["Chest Breaker"] = 10000,
+	["Secret Key"] = 3000,
+    ["Secret Key Lower Half"] = 500,
+	["Secret Key Upper Half"] = 1000
+}
+
 wait(10)
 game:GetService("RunService"):Set3dRenderingEnabled(false)
 local Booths_Broadcast = game:GetService("ReplicatedStorage").Network:WaitForChild("Booths_Broadcast")
@@ -212,7 +277,7 @@ Booths_Broadcast.OnClientEvent:Connect(function(username, message)
             elseif class == "Egg" and gems <= MainPrices.EggPrice then
                 coroutine.wrap(tryPurchase)(uid, gems, item, version, shiny, amount, username, class, playerid, buytimestamp, listTimestamp)
                 return
-            elseif ((string.find(item, "Key") and not string.find(item, "Lower")) or string.find(item, "Ticket") or string.find(item, "Charm") or class == "Charm") and gems <= 1 then
+            elseif ((string.find(item, "Key") and not string.find(item, "Lower")) or string.find(item, "Ticket") or string.find(item, "Charm") or class == "Charm") and gems <= 100 then
                 coroutine.wrap(tryPurchase)(uid, gems, item, version, shiny, amount, username, class, playerid, buytimestamp, listTimestamp)
                 return
             elseif class == "Enchant" then
