@@ -7,9 +7,9 @@ print("booty works V8")
 
 local MainPrices = {
 
-    HugePrice = 23000000,
+    HugePrice = 20000000,
     TitanicPetPrice = 950000000,
-    ExclusivePetPrice = 700000,
+    ExclusivePetPrice = 500000,
 	EggPrice = 6000000,
     buyAnything = 2
 }
@@ -64,7 +64,7 @@ local PotionsPS99 = {
 --charms
 local CharmsPS99 = {
 	["Overload"] = 1000000,
-    ["Royalty"] = 5000000,
+    ["Royalty"] = 3000000,
     ["Glittering"]= 25000
 }
 
