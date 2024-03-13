@@ -36,7 +36,7 @@ local ItemsPS99 = {
     ["Spinny Wheel Ticket"]= 2000,
     ["Tech Wheel Ticket"]= 5000,
 	["Booth Slot Voucher"]= 150000,
-    ["Daycare Slot Voucher"] = 80000,
+    ["Daycare Slot Voucher"] = 8000,
 	["Clan Voucher"]= 500000,
     ["Crystal Key"] = 5000,  -- Direct value for "Crystal Key"
     ["Crystal Key Lower Half"] = 300,
@@ -45,7 +45,7 @@ local ItemsPS99 = {
     ["Secret Key Lower Half"] = 500,
 	["Secret Key Upper Half"] = 30000,
     ["Tech Key"] = 50000,
-    ["Tech Key Lower Half"] = 500,
+    ["Tech Key Lower Half"] = 300,
 	["Tech Key Upper Half"] = 30000
 }
 
