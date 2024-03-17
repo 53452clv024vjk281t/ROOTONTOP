@@ -1,3 +1,10 @@
+local osclock = os.clock()
+repeat task.wait(1) until game:IsLoaded()
+
+
+print("booty modfied by patrick")
+--// loadstring(game:HttpGet('https://raw.githubusercontent.com/root/main/main/snipe'))()
+
 local MainPrices = {
 
     HugePrice = 26000000,
