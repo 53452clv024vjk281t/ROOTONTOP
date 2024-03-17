@@ -1,58 +1,62 @@
-local osclock = os.clock()
-repeat task.wait(1) until game:IsLoaded()
-
-
-print("booty works V8")
---// loadstring(game:HttpGet('https://raw.githubusercontent.com/jayzekituze/Utomel/main/MabootySnipe'))()
-
 local MainPrices = {
 
     HugePrice = 26000000,
     TitanicPetPrice = 950000000,
-    ExclusivePetPrice = 500000,
+    ExclusivePetPrice = 10000000,
 	EggPrice = 8000000,
     buyAnything = 2
 }
 
 local MgaLibro = {
 
+    Super Magnet = 70000000,
+    Super Shiny Hunter = 60000000,
     BossChestMimic = 50000000,
-    ChestMimic = 50000000,
+    ChestMimic = 300000000,
     DiamondChestMimic = 30000000,
-	LuckyBlock = 20000000,
+    Boss Lucky Block = 100000000,
+	LuckyBlock = 15000000,
     MassiveComet = 10000000,
-    ChestBreaker = 10000000,
+    ChestBreaker = 5000000,
     HugeHunter = 1000000
 }
 
 
 --PS99 ITEMS
 local ItemsPS99 = {
+    ["Diamond Fishing Rod"] = 20000000,
+    ["Diamond Shovel"] = 20000000,
+    ["Arcade Token"] = 1000000,
+    ["Watermelon"] = 500,
     ["Exotic Treasure Flag"] = 50000,
     ["Mystery Ticket"] = 5000000,
+    ["Adventurer's Lootbox"] = 50000000,
     ["Titanic Christmas Present"] = 5000000,
-    ["X-Large Christmas Present"] = 60000,
-    ["2024 New Year"] = 10000,
-    ["Spinny Wheel Ticket"]= 4000,
+    ["X-Large Christmas Present"] = 600,
+    ["2024 New Year"] = 1000000,
+    ["Spinny Wheel Ticket"]= 2000,
     ["Tech Wheel Ticket"]= 5000,
+    ["Exlusive Daycare Slot Voucher"]= 6000000,
 	["Booth Slot Voucher"]= 150000,
     ["Daycare Slot Voucher"] = 8000,
-	["Clan Voucher"]= 500000,
+	["Clan Voucher"]= 1000000,
     ["Crystal Key"] = 5000,  -- Direct value for "Crystal Key"
     ["Crystal Key Lower Half"] = 300,
 	["Crystal Key Upper Half"] = 5000,
-    ["Secret Key"] = 50000,
+    ["Secret Key"] = 20000,
     ["Secret Key Lower Half"] = 500,
-	["Secret Key Upper Half"] = 30000,
-    ["Tech Key"] = 50000,
+	["Secret Key Upper Half"] = 20000,
+    ["Tech Key"] = 20000,
     ["Tech Key Lower Half"] = 300,
-	["Tech Key Upper Half"] = 30000
+	["Tech Key Upper Half"] = 20000
 }
 
 --ulitmates
 local Ultimates = {
-    ["Black Hole"] = 50000000,
-	["Chest Spell"] = 100000000,
+    ["Lightning Storm"] = 20000000,
+    ["Hidden Treasure"] = 150000000,
+    ["Black Hole"] = 100000000,
+	["Chest Spell"] = 150000000,
     ["Tornado"] = 1000000
 }
 
@@ -63,11 +67,10 @@ local PotionsPS99 = {
 
 --charms
 local CharmsPS99 = {
-	["Overload"] = 1000000,
+	["Overload"] = 3000000,
     ["Royalty"] = 3000000,
     ["Glittering"]= 25000
 }
-
 
 wait(20)
 -- Anti AFK
