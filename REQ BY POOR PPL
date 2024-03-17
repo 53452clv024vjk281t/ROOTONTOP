@@ -16,12 +16,9 @@ local MainPrices = {
 
 local MgaLibro = {
 
-    Super Magnet = 70000000,
-    Super Shiny Hunter = 60000000,
     BossChestMimic = 50000000,
     ChestMimic = 300000000,
     DiamondChestMimic = 30000000,
-    Boss Lucky Block = 100000000,
 	LuckyBlock = 15000000,
     MassiveComet = 10000000,
     ChestBreaker = 5000000,
@@ -79,22 +76,9 @@ local CharmsPS99 = {
     ["Glittering"]= 25000
 }
 
+
 wait(20)
--- Anti AFK
-local VirtualUser = game:service'VirtualUser'
-game:service'Players'.LocalPlayer.Idled:connect(function()
-VirtualUser:CaptureController()
-VirtualUser:ClickButton2(Vector2.new())
-end)
-game:GetService("Players").LocalPlayer.PlayerScripts.Scripts.Core["Idle Tracking"].Disabled = true
--- Character Jump
-local PlayerJump = coroutine.create(function ()
-    while 1 do
-        wait(7)
-        game.Players.LocalPlayer.Character.Humanoid.Jump = true
-    end
-end)
-coroutine.resume(PlayerJump)
+
 game:GetService("RunService"):Set3dRenderingEnabled(false)
 local Booths_Broadcast = game:GetService("ReplicatedStorage").Network:WaitForChild("Booths_Broadcast")
 local Players = game:GetService('Players')
