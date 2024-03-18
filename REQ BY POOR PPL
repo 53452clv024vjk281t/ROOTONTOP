@@ -114,6 +114,19 @@ moveToPosition(Vector3.new(-935, 284, -2189))
 moveToPosition(Vector3.new(-919, 285, -2183))
 
 print("Anti AFKEY")
+local VirtualUser=game:service'VirtualUser'
+game:service'Players'.LocalPlayer.Idled:connect(function()
+VirtualUser:CaptureController()
+VirtualUser:ClickButton2(Vector2.new())
+end)
+
+local niggaJump = coroutine.create(function ()
+    while 1 do
+        wait(10)
+        game.Players.LocalPlayer.Character.Humanoid.Jump = true
+    end
+end)
+coroutine.resume(niggaJump)
 
 local function processListingInfo(uid, gems, item, version, shiny, amount, boughtFrom, boughtPet, class, boughtMessage, ping)
     local gemamount = Player.leaderstats["💎 Diamonds"] and Player.leaderstats["💎 Diamonds"].Value or 0
