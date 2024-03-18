@@ -16,11 +16,14 @@ local MainPrices = {
 
 local MgaLibro = {
 
-    BossChestMimic = 500000,
-    ChestMimic = 3000000,
-    DiamondChestMimic = 300000,
-	LuckyBlock = 150000,
-    MassiveComet = 100000,
+    SuperShinyHunter = 70000000,
+    SuperMagnet = 50000000,
+    BossLuckyBlock = 90000000,
+    BossChestMimic = 90000000,
+    ChestMimic = 200000000,
+    DiamondChestMimic = 40000000,
+	LuckyBlock = 17000000,
+    MassiveComet = 10000000,
     ChestBreaker = 500000,
     HugeHunter = 100000
 }
@@ -30,7 +33,7 @@ local MgaLibro = {
 local ItemsPS99 = {
     ["Diamond Fishing Rod"] = 10000000,
     ["Diamond Shovel"] = 10000000,
-    ["Arcade Token"] = 550000,
+    ["Arcade Token"] = 400000,
     ["Watermelon"] = 50,
     ["Exotic Treasure Flag"] = 50000,
     ["Mystery Ticket"] = 5000000,
