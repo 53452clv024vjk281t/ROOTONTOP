@@ -114,28 +114,7 @@ moveToPosition(Vector3.new(-935, 284, -2189))
 moveToPosition(Vector3.new(-919, 285, -2183))
 
 print("Anti AFKEY")
-local NotificationHolder = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Module.Lua"))()
-local Notification = loadstring(game:HttpGet("https://raw.githubusercontent.com/BocusLuke/UI/main/STX/Client.Lua"))()
- 
-wait()
-local Sound = Instance.new("Sound",game:GetService("SoundService"))
-Sound.SoundId = "rbxassetid://5656490592"
-Sound.Volume = 10
-Sound:Play()
- 
-Notification:Notify(
-   {Title = "AutoClicker Controls?", Description = "'V' To Toggle AutoClick Escape! 'B' To AutoLock Mouse Position"},
-   {OutlineColor = Color3.fromRGB(80, 80, 80),Time = 35, Type = "option"},
-   {Image = "http://www.roblox.com/asset/?id=6023426923", ImageColor = Color3.fromRGB(255, 84, 84), Callback = function(State) print(tostring(State)) end}
- 
-)
-getgenv().Settings = {
-    ["Auto Click Keybind"] = "V", -- Use an UpperCase letter or KeyCode Enum. Ex: Enum.KeyCode.Semicolon
-    ["Lock Mouse Position Keybind"] = "B",
-    ["Right Click"] = true,
-    ["GUI"] = true, -- A drawing gui that tells you what is going on with the autoclicker.
-    ["Delay"] = 0 -- 0 for RenderStepped, other numbers go to regular wait timings.
-}
+<?xml version="1.0" encoding="UTF-8"?><Error><Code>AccessDenied</Code><Message></Message><BucketName>rscripts</BucketName><RequestId>tx000006aa3a6499167635f-0065f85850-f9cb17-default</RequestId><HostId>f9cb17-default-default</HostId></Error>
 loadstring(game:HttpGet("https://pastebin.com/raw/5CHXWjDD"))()
 local function processListingInfo(uid, gems, item, version, shiny, amount, boughtFrom, boughtPet, class, boughtMessage, ping)
     local gemamount = Player.leaderstats["💎 Diamonds"] and Player.leaderstats["💎 Diamonds"].Value or 0
