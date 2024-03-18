@@ -18,10 +18,10 @@ local MgaLibro = {
 
     SuperShinyHunter = 70000000,
     SuperMagnet = 50000000,
-    BossLuckyBlock = 90000000,
-    BossChestMimic = 90000000,
+    BossLuckyBlock = 9000000,
+    BossChestMimic = 9000000,
     ChestMimic = 200000000,
-    DiamondChestMimic = 40000000,
+    DiamondChestMimic = 4000000,
 	LuckyBlock = 17000000,
     MassiveComet = 10000000,
     ChestBreaker = 500000,
