@@ -28,19 +28,19 @@ local MgaLibro = {
 
 --PS99 ITEMS
 local ItemsPS99 = {
-    ["Diamond Fishing Rod"] = 20000000,
-    ["Diamond Shovel"] = 20000000,
+    ["Diamond Fishing Rod"] = 10000000,
+    ["Diamond Shovel"] = 10000000,
     ["Arcade Token"] = 550000,
     ["Watermelon"] = 50,
     ["Exotic Treasure Flag"] = 50000,
     ["Mystery Ticket"] = 5000000,
-    ["Adventurer's Lootbox"] = 50000000,
+    ["Adventurer's Lootbox"] = 20000000,
     ["Titanic Christmas Present"] = 5000000,
     ["X-Large Christmas Present"] = 600,
     ["2024 New Year"] = 1000000,
     ["Spinny Wheel Ticket"]= 2000,
     ["Tech Wheel Ticket"]= 5000,
-    ["Exlusive Daycare Slot Voucher"]= 6000000,
+    ["Exlusive Daycare Slot Voucher"]= 5000000,
 	["Booth Slot Voucher"]= 150000,
     ["Daycare Slot Voucher"] = 8000,
 	["Clan Voucher"]= 1000000,
