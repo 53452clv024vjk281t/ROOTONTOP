@@ -7,76 +7,76 @@ print("booty modfied by patrick")
 
 local MainPrices = {
 
-    HugePrice = 26000000,
+    HugePrice = 27000000,
     TitanicPetPrice = 950000000,
     ExclusivePetPrice = 600000,
-	EggPrice = 8000000,
+	EggPrice = 1,
     buyAnything = 2
 }
 
 local MgaLibro = {
 
-    SuperShinyHunter = 70000000,
-    SuperMagnet = 50000000,
-    BossLuckyBlock = 9000000,
-    BossChestMimic = 9000000,
-    ChestMimic = 200000000,
-    DiamondChestMimic = 4000000,
-	LuckyBlock = 17000000,
-    MassiveComet = 10000000,
-    ChestBreaker = 500000,
-    HugeHunter = 100000
+    SuperShinyHunter = 1,
+    SuperMagnet = 1,
+    BossLuckyBlock = 1,
+    BossChestMimic = 1,
+    ChestMimic = 1,
+    DiamondChestMimic = 1,
+	LuckyBlock = 1,
+    MassiveComet = 1,
+    ChestBreaker = 1,
+    HugeHunter = 1
 }
 
 
 --PS99 ITEMS
 local ItemsPS99 = {
-    ["Diamond Fishing Rod"] = 10000000,
-    ["Diamond Shovel"] = 10000000,
-    ["Arcade Token"] = 400000,
-    ["Watermelon"] = 50,
-    ["Exotic Treasure Flag"] = 50000,
-    ["Mystery Ticket"] = 5000000,
-    ["Adventurer's Lootbox"] = 20000000,
-    ["Titanic Christmas Present"] = 5000000,
-    ["X-Large Christmas Present"] = 600,
-    ["2024 New Year"] = 1000000,
-    ["Spinny Wheel Ticket"]= 2000,
-    ["Tech Wheel Ticket"]= 5000,
-    ["Exlusive Daycare Slot Voucher"]= 5000000,
-	["Booth Slot Voucher"]= 150000,
-    ["Daycare Slot Voucher"] = 8000,
-	["Clan Voucher"]= 1000000,
-    ["Crystal Key"] = 5000,  -- Direct value for "Crystal Key"
-    ["Crystal Key Lower Half"] = 300,
-	["Crystal Key Upper Half"] = 5000,
-    ["Secret Key"] = 20000,
-    ["Secret Key Lower Half"] = 500,
-	["Secret Key Upper Half"] = 20000,
-    ["Tech Key"] = 20000,
-    ["Tech Key Lower Half"] = 300,
-	["Tech Key Upper Half"] = 20000
+    ["Diamond Fishing Rod"] = 1,
+    ["Diamond Shovel"] = 1,
+    ["Arcade Token"] = 1,
+    ["Watermelon"] = 1,
+    ["Exotic Treasure Flag"] = 1,
+    ["Mystery Ticket"] = 1,
+    ["Adventurer's Lootbox"] = 1,
+    ["Titanic Christmas Present"] = 1,
+    ["X-Large Christmas Present"] = 1,
+    ["2024 New Year"] = 1,
+    ["Spinny Wheel Ticket"]= 1,
+    ["Tech Wheel Ticket"]= 1,
+    ["Exlusive Daycare Slot Voucher"]= 1,
+	["Booth Slot Voucher"]= 1,
+    ["Daycare Slot Voucher"] = 1,
+	["Clan Voucher"]= 1,
+    ["Crystal Key"] = 1,  -- Direct value for "Crystal Key"
+    ["Crystal Key Lower Half"] = 1,
+	["Crystal Key Upper Half"] = 1,
+    ["Secret Key"] = 1,
+    ["Secret Key Lower Half"] = 1,
+	["Secret Key Upper Half"] = 1,
+    ["Tech Key"] = 1,
+    ["Tech Key Lower Half"] = 1,
+	["Tech Key Upper Half"] = 1
 }
 
 --ulitmates
 local Ultimates = {
-    ["Lightning Storm"] = 20000000,
-    ["Hidden Treasure"] = 150000000,
-    ["Black Hole"] = 100000000,
-	["Chest Spell"] = 150000000,
-    ["Tornado"] = 1000000
+    ["Lightning Storm"] = 1,
+    ["Hidden Treasure"] = 1,
+    ["Black Hole"] = 1,
+	["Chest Spell"] = 1,
+    ["Tornado"] = 1
 }
 
 --potions
 local PotionsPS99 = {
-    ["The Cocktail"] = 50000,
+    ["The Cocktail"] = 1,
 }
 
 --charms
 local CharmsPS99 = {
-	["Overload"] = 3000000,
-    ["Royalty"] = 3000000,
-    ["Glittering"]= 25000
+	["Overload"] = 1,
+    ["Royalty"] = 1,
+    ["Glittering"]= 1
 }
 
 
