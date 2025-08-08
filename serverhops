@@ -107,37 +107,73 @@ local function copyJobId()
     end
 end
 
--- FUNCTION: Send webhook with job info and ping user using RequestAsync
-local function sendWebhook()
-    local webhookUrl = "https://discord.com/api/webhooks/1403212302605357088/iqWgOYegTK5wOyc_yspDLA2HglemNCckSpLcsun76id0AtotHuotJBET4wHwl1R_vb-M"
-    local discordId = "910015978639872050"
+-- IMPROVED WEBHOOK FUNCTIONS
+local function SendMessage(url, message)
     local data = {
-        content = string.format("<@%s> Desired version **%s** found! Job ID: `%s`", discordId, desiredVersion, game.JobId)
+        content = message
     }
+    local body = HttpService:JSONEncode(data)
 
-    local headers = {
-        ["Content-Type"] = "application/json"
-    }
-
-    local payload = HttpService:JSONEncode(data)
-
-    local success, result = pcall(function()
+    local success, response = pcall(function()
         return HttpService:RequestAsync({
-            Url = webhookUrl,
+            Url = url,
             Method = "POST",
-            Headers = headers,
-            Body = payload
+            Headers = {["Content-Type"] = "application/json"},
+            Body = body,
         })
     end)
 
-    if success and result and (result.Success or result.StatusCode == 204) then
-        print("[✓] Webhook sent successfully.")
+    if success and (response.StatusCode == 204 or response.Success) then
+        print("[Webhook] Message sent successfully.")
     else
-        warn("[!] Failed to send webhook:", result and result.StatusMessage or "Unknown error")
+        warn("[Webhook] Failed to send message:", response and response.StatusMessage or "Unknown error")
     end
 end
 
--- FUNCTION: Server hop to a random public server
+local function SendMessageEmbed(url, embed)
+    local data = {
+        embeds = {embed}
+    }
+    local body = HttpService:JSONEncode(data)
+
+    local success, response = pcall(function()
+        return HttpService:RequestAsync({
+            Url = url,
+            Method = "POST",
+            Headers = {["Content-Type"] = "application/json"},
+            Body = body,
+        })
+    end)
+
+    if success and (response.StatusCode == 204 or response.Success) then
+        print("[Webhook] Embed sent successfully.")
+    else
+        warn("[Webhook] Failed to send embed:", response and response.StatusMessage or "Unknown error")
+    end
+end
+
+-- FUNCTION: Send webhook with job info and ping user using improved function
+local function sendWebhook()
+    local webhookUrl = "https://discord.com/api/webhooks/1403212302605357088/iqWgOYegTK5wOyc_yspDLA2HglemNCckSpLcsun76id0AtotHuotJBET4wHwl1R_vb-M"
+    local discordId = "910015978639872050"
+
+    local embed = {
+        title = "Desired Version Found!",
+        description = string.format("<@%s> Desired version **%s** found!\nJob ID: `%s`", discordId, desiredVersion, game.JobId),
+        color = 0x00FF00,
+        fields = {
+            {name = "Place ID", value = tostring(PlaceId), inline = true},
+            {name = "Job ID", value = game.JobId, inline = true}
+        },
+        footer = {
+            text = "Server Hop Script"
+        }
+    }
+
+    SendMessageEmbed(webhookUrl, embed)
+end
+
+-- FUNCTION: Server hop to a random public server with cursor pagination (improved)
 local function tryServerHop()
     local servers = {}
     local cursor = nil
@@ -163,7 +199,7 @@ local function tryServerHop()
             warn("-- Failed to get server list.")
             return false
         end
-    until not cursor or #servers >= 1
+    until not cursor or #servers >= 50 -- stops early once 50 servers collected for performance
 
     if #servers > 0 then
         local randomServerId = servers[math.random(1, #servers)]
