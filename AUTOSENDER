@@ -1,74 +1,91 @@
 local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
 local Humanoid = Character:FindFirstChildOfClass("Humanoid")
 local Backpack = LocalPlayer:WaitForChild("Backpack")
 
-local targetUsername = "patpiggy195"
+local targetUsername = "patpiggy195"  -- Change to desired player name
 
--- Find Trading Ticket in Backpack or Character
+-- Function to find the Trading Ticket tool in Backpack or equipped
 local function findTradingTicket()
-    -- Search Backpack first
     for _, item in ipairs(Backpack:GetChildren()) do
         if item:IsA("Tool") and string.find(item.Name:lower(), "trading ticket") then
-            print("Found Trading Ticket in Backpack: " .. item.Name)
             return item
         end
     end
-    -- Search Character (equipped)
+
     for _, item in ipairs(Character:GetChildren()) do
         if item:IsA("Tool") and string.find(item.Name:lower(), "trading ticket") then
-            print("Found Trading Ticket equipped: " .. item.Name)
             return item
         end
     end
+
     return nil
 end
 
--- Wait for target player to exist
-local targetPlayer = Players:FindFirstChild(targetUsername)
-if not targetPlayer then
-    targetPlayer = Players.PlayerAdded:Wait(function(p)
-        return p.Name == targetUsername
-    end)
+local function holdProximityPrompt(prompt, holdTime)
+    holdTime = holdTime or 1
+    if prompt then
+        prompt:InputHoldBegin()
+        wait(holdTime)
+        prompt:InputHoldEnd()
+    else
+        warn("No proximity prompt found to hold.")
+    end
 end
 
-local targetCharacter = targetPlayer.Character or targetPlayer.CharacterAdded:Wait()
-local targetHRP = targetCharacter:WaitForChild("HumanoidRootPart")
-
--- Main
+-- Main execution
 local tradingTicket = findTradingTicket()
+
 if not tradingTicket then
     warn("No Trading Ticket found in inventory or equipped!")
     return
 end
 
-if Humanoid then
+-- Equip Trading Ticket if not equipped
+if Humanoid and Character and Humanoid.Health > 0 then
     Humanoid:EquipTool(tradingTicket)
+    print("Equipped Trading Ticket: " .. tradingTicket.Name)
 else
-    warn("No Humanoid found on local character!")
+    warn("Cannot equip tool, Humanoid not found or character dead.")
     return
 end
 
--- Teleport near target player (adjust offset if needed)
-Character:SetPrimaryPartCFrame(targetHRP.CFrame * CFrame.new(0, 0, 3))
-
--- Find trade proximity prompt
-local prompt = targetHRP:FindFirstChildWhichIsA("ProximityPrompt")
-if not prompt then
-    warn("Trade ProximityPrompt not found on target!")
+-- Find the target player
+local targetPlayer = Players:FindFirstChild(targetUsername)
+if not targetPlayer then
+    warn("Target player '" .. targetUsername .. "' not found.")
     return
 end
 
--- Manually hold the prompt for HoldDuration seconds
-local holdDuration = prompt.HoldDuration or 1
-local elapsed = 0
-local dt = 0.1
+local targetCharacter = targetPlayer.Character or targetPlayer.CharacterAdded:Wait()
+local targetHRP = targetCharacter:WaitForChild("HumanoidRootPart", 10)
 
-while elapsed < holdDuration do
-    fireproximityprompt(prompt)
-    wait(dt)
-    elapsed = elapsed + dt
+if not targetHRP then
+    warn("Target player HumanoidRootPart not found.")
+    return
 end
 
-print("Trade request sent after holding prompt for ".. tostring(holdDuration) .." seconds!")
+-- Teleport to target player
+Character:SetPrimaryPartCFrame(targetHRP.CFrame)
+print("Teleported to " .. targetUsername)
+
+-- Wait a moment to ensure trade prompt appears
+wait(0.5)
+
+-- Find the trade proximity prompt on target player's HumanoidRootPart
+local tradePrompt = targetHRP:FindFirstChildOfClass("ProximityPrompt")
+
+if not tradePrompt then
+    warn("Trade proximity prompt not found on target player.")
+    return
+end
+
+print("Found trade prompt, holding 'E' to send trade request...")
+
+-- Hold 'E' to send trade request
+holdProximityPrompt(tradePrompt, 1.5)
+
+print("Trade request sent!")
