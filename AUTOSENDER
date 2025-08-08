@@ -6,10 +6,19 @@ local Backpack = LocalPlayer:WaitForChild("Backpack")
 
 local targetUsername = "patpiggy195"
 
--- Find Trading Ticket in inventory
+-- Find Trading Ticket in Backpack or Character
 local function findTradingTicket()
+    -- Search Backpack first
     for _, item in ipairs(Backpack:GetChildren()) do
         if item:IsA("Tool") and string.find(item.Name:lower(), "trading ticket") then
+            print("Found Trading Ticket in Backpack: " .. item.Name)
+            return item
+        end
+    end
+    -- Search Character (equipped)
+    for _, item in ipairs(Character:GetChildren()) do
+        if item:IsA("Tool") and string.find(item.Name:lower(), "trading ticket") then
+            print("Found Trading Ticket equipped: " .. item.Name)
             return item
         end
     end
@@ -30,7 +39,7 @@ local targetHRP = targetCharacter:WaitForChild("HumanoidRootPart")
 -- Main
 local tradingTicket = findTradingTicket()
 if not tradingTicket then
-    warn("No Trading Ticket found in inventory!")
+    warn("No Trading Ticket found in inventory or equipped!")
     return
 end
 
