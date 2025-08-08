@@ -107,27 +107,16 @@ local function copyJobId()
     end
 end
 
--- FUNCTION: Send webhook with job info and teleport code
-local function sendWebhook()
-    local webhookUrl = "https://discord.com/api/webhooks/1403212302605357088/iqWgOYegTK5wOyc_yspDLA2HglemNCckSpLcsun76id0AtotHuotJBET4wHwl1R_vb-M"
-    local discordId = "910015978639872050"
-    local message = string.format(
-        "**Server Version**\nPlace Version: %s\n\n**Total Player In Server**\n(%d/%d)\n\n**Job ID:**\n%s\n\n**Teleport Code:**\n```lua\ngame:GetService(\"TeleportService\"):TeleportToPlaceInstance(%d, \"%s\", game:GetService(\"Players\").LocalPlayer)```",
-        desiredVersion,
-        #Players:GetPlayers(),
-        Players.MaxPlayers or 5,
-        game.JobId,
-        PlaceId,
-        game.JobId
-    )
+-- IMPROVED WEBHOOK FUNCTIONS
+local function SendMessage(url, message)
     local data = {
-        content = "<@" .. discordId .. "> " .. message
+        content = message
     }
     local body = HttpService:JSONEncode(data)
 
     local success, response = pcall(function()
         return HttpService:RequestAsync({
-            Url = webhookUrl,
+            Url = url,
             Method = "POST",
             Headers = {["Content-Type"] = "application/json"},
             Body = body,
@@ -139,6 +128,59 @@ local function sendWebhook()
     else
         warn("[Webhook] Failed to send message:", response and response.StatusMessage or "Unknown error")
     end
+end
+
+local function SendMessageEmbed(url, embed)
+    local data = {
+        embeds = {embed}
+    }
+    local body = HttpService:JSONEncode(data)
+
+    local success, response = pcall(function()
+        return HttpService:RequestAsync({
+            Url = url,
+            Method = "POST",
+            Headers = {["Content-Type"] = "application/json"},
+            Body = body,
+        })
+    end)
+
+    if success and (response.StatusCode == 204 or response.Success) then
+        print("[Webhook] Embed sent successfully.")
+    else
+        warn("[Webhook] Failed to send embed:", response and response.StatusMessage or "Unknown error")
+    end
+end
+
+-- FUNCTION: Send webhook with job info and ping user using improved function
+local function sendWebhook()
+    local webhookUrl = "https://discord.com/api/webhooks/1403212302605357088/iqWgOYegTK5wOyc_yspDLA2HglemNCckSpLcsun76id0AtotHuotJBET4wHwl1R_vb-M"
+    local discordId = "910015978639872050"
+    local players = #Players:GetPlayers()
+    local maxPlayers = Players.MaxPlayers or 0
+
+    local embed = {
+        title = "Server Version",
+        description = string.format(
+            "**Place Version:** %s\n\n" ..
+            "**Total Player In Server**\n(%d/%d)\n\n" ..
+            "**Job ID:**\n%s\n\n" ..
+            "**Teleport Code:**\n```lua\n" ..
+            "game:GetService(\"TeleportService\"):TeleportToPlaceInstance(%d, \"%s\", game:GetService(\"Players\").LocalPlayer)\n" ..
+            "```",
+            desiredVersion,
+            players, maxPlayers,
+            game.JobId,
+            PlaceId,
+            game.JobId
+        ),
+        color = 0x00FF00,
+        footer = {
+            text = "Server Hop Script"
+        }
+    }
+
+    SendMessageEmbed(webhookUrl, embed)
 end
 
 -- FUNCTION: Server hop to a random public server with cursor pagination (improved)
@@ -188,15 +230,14 @@ task.spawn(function()
             print("[✓] Correct version found.")
             copyJobId()
 
-            -- Send webhook
+            -- Send webhook and destroy UI
             sendWebhook()
-
-            -- Destroy UI
             if gui then
                 gui:Destroy()
             end
 
-            -- Load external script
+            -- Wait 3 seconds before running the loadstring
+            task.wait(3)
             loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
 
             break
