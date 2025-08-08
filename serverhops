@@ -1,5 +1,7 @@
-local desiredVersion = "1681" -- You can still use this for webhook info
+local desiredVersion = "1681"
 local PlaceId = game.PlaceId
+local AUTO_HOP_LOOP = false  -- Set to true if you want it to keep hopping automatically
+local HOP_INTERVAL = 15      -- Seconds between hops in loop
 
 -- SERVICES
 local HttpService = game:GetService("HttpService")
@@ -10,15 +12,13 @@ local Player = Players.LocalPlayer
 -- Clipboard compatibility
 local setclipboard = setclipboard or toclipboard or (Clipboard and Clipboard.set)
 
--- Wait until game is fully loaded before continuing
-repeat
-    task.wait(0.1)
-until game:IsLoaded()
-
--- Wait extra 5 seconds before continuing
+repeat task.wait(0.1) until game:IsLoaded()
 task.wait(5)
 
 -- UI SETUP
+local hopRequested = false
+local stayRequested = false
+
 local function createLoadingUI()
     local gui = Instance.new("ScreenGui")
     gui.Name = "ServerHopUI"
@@ -34,7 +34,7 @@ local function createLoadingUI()
     local statusLabel = Instance.new("TextLabel")
     statusLabel.Name = "StatusLabel"
     statusLabel.Size = UDim2.new(1, 0, 0, 60)
-    statusLabel.Position = UDim2.new(0, 0, 0.4, 0)
+    statusLabel.Position = UDim2.new(0, 0, 0.35, 0)
     statusLabel.BackgroundTransparency = 1
     statusLabel.Text = "🔄 Loading..."
     statusLabel.Font = Enum.Font.SourceSansBold
@@ -46,21 +46,49 @@ local function createLoadingUI()
     local versionLabel = Instance.new("TextLabel")
     versionLabel.Name = "VersionLabel"
     versionLabel.Size = UDim2.new(1, 0, 0, 40)
-    versionLabel.Position = UDim2.new(0, 0, 0.45, 0)
+    versionLabel.Position = UDim2.new(0, 0, 0.42, 0)
     versionLabel.BackgroundTransparency = 1
-    versionLabel.Text = "Running Speed Hub X..."
+    versionLabel.Text = ""
     versionLabel.Font = Enum.Font.SourceSans
     versionLabel.TextSize = 24
     versionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
     versionLabel.TextStrokeTransparency = 0.5
     versionLabel.Parent = bg
 
+    -- Retry Hop Button
+    local retryBtn = Instance.new("TextButton")
+    retryBtn.Size = UDim2.new(0, 180, 0, 40)
+    retryBtn.Position = UDim2.new(0.3, 0, 0.52, 0)
+    retryBtn.Text = "🔁 Retry Server Hop"
+    retryBtn.Font = Enum.Font.SourceSansBold
+    retryBtn.TextSize = 20
+    retryBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    retryBtn.BackgroundColor3 = Color3.fromRGB(50, 150, 255)
+    retryBtn.Parent = bg
+    retryBtn.MouseButton1Click:Connect(function()
+        hopRequested = true
+    end)
+
+    -- Stay Button
+    local stayBtn = Instance.new("TextButton")
+    stayBtn.Size = UDim2.new(0, 180, 0, 40)
+    stayBtn.Position = UDim2.new(0.5, 10, 0.52, 0)
+    stayBtn.Text = "🛑 Stay in Server"
+    stayBtn.Font = Enum.Font.SourceSansBold
+    stayBtn.TextSize = 20
+    stayBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+    stayBtn.BackgroundColor3 = Color3.fromRGB(255, 50, 50)
+    stayBtn.Parent = bg
+    stayBtn.MouseButton1Click:Connect(function()
+        stayRequested = true
+    end)
+
     local creditsLabel = Instance.new("TextLabel")
     creditsLabel.Name = "CreditsLabel"
     creditsLabel.Size = UDim2.new(1, 0, 0, 40)
     creditsLabel.Position = UDim2.new(0, 0, 0.9, 0)
     creditsLabel.BackgroundTransparency = 1
-    creditsLabel.Text = "Credits: mimicccccc1#2347"
+    creditsLabel.Text = "Credits: Patrick"
     creditsLabel.Font = Enum.Font.SourceSansItalic
     creditsLabel.TextSize = 24
     creditsLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
@@ -72,34 +100,29 @@ end
 
 local gui, statusLabel, versionLabel = createLoadingUI()
 
--- FUNCTION: Copy Job ID to clipboard
+-- Copy Job ID
 local function copyJobId()
     if setclipboard then
         setclipboard(game.JobId)
-        print("[✓] Job ID copied: " .. game.JobId)
-    else
-        warn("Clipboard function not supported.")
     end
 end
 
--- FUNCTION: Send webhook with job info
+-- Webhook
 local function sendWebhook()
     local webhookUrl = "https://discord.com/api/webhooks/1403212302605357088/iqWgOYegTK5wOyc_yspDLA2HglemNCckSpLcsun76id0AtotHuotJBET4wHwl1R_vb-M"
     local players = #Players:GetPlayers()
     local maxPlayers = Players.MaxPlayers or 0
-    local currentVersion = tostring(version()):match("%d+") or "Unknown" -- Roblox client version
-    local currentPlaceVersion = tostring(game.PlaceVersion or "Unknown") -- Place (game) version
+    local currentVersion = tostring(version()):match("%d+") or "Unknown"
+    local currentPlaceVersion = tostring(game.PlaceVersion or "Unknown")
 
-    -- Decide color: red if version mismatch, green otherwise
     local isCorrectVersion = currentVersion == desiredVersion
     local embedColor = isCorrectVersion and 0x00FF00 or 0xFF0000
 
-    -- Update GUI color and text
     versionLabel.TextColor3 = isCorrectVersion and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
-    versionLabel.Text = "Version Check: " .. currentVersion .. " (Expected: " .. desiredVersion .. ")"
+    versionLabel.Text = "Client Version: " .. currentVersion .. " | Place Version: " .. currentPlaceVersion
 
     local embed = {
-        title = "Speed Hub Joined Server",
+        title = "Script Joined Server",
         description = string.format(
             "**Desired Version:** %s\n" ..
             "**Current Client Version:** %s\n" ..
@@ -117,11 +140,10 @@ local function sendWebhook()
             game.JobId
         ),
         color = embedColor,
-        footer = { text = "Auto Speed Hub Loader" }
+        footer = { text = "Auto Script Loader" }
     }
 
     local data = HttpService:JSONEncode({ embeds = { embed } })
-
     pcall(function()
         HttpService:RequestAsync({
             Url = webhookUrl,
@@ -132,16 +154,14 @@ local function sendWebhook()
     end)
 end
 
--- FUNCTION: Server hop to a random public server
+-- Server hop
 local function tryServerHop()
     local servers = {}
     local cursor = nil
 
     repeat
         local url = "https://games.roblox.com/v1/games/"..PlaceId.."/servers/Public?sortOrder=Asc&limit=100"
-        if cursor then
-            url = url .. "&cursor=" .. cursor
-        end
+        if cursor then url = url .. "&cursor=" .. cursor end
 
         local success, response = pcall(function()
             return HttpService:JSONDecode(game:HttpGet(url))
@@ -155,7 +175,7 @@ local function tryServerHop()
             end
             cursor = response.nextPageCursor
         else
-            warn("-- Failed to get server list.")
+            warn("Failed to get server list.")
             return false
         end
     until not cursor or #servers >= 50
@@ -166,25 +186,35 @@ local function tryServerHop()
         TeleportService:TeleportToPlaceInstance(PlaceId, randomServerId, Player)
         return true
     else
-        warn("-- No servers found to hop.")
+        statusLabel.Text = "⚠️ No servers found to hop."
         return false
     end
 end
 
--- MAIN
+-- MAIN EXECUTION
 task.spawn(function()
-    -- Show status
-    statusLabel.Text = "✅ Speed Hub X executing..."
-    print("[✓] Executing Speed Hub X...")
-
-    -- Execute the Speed Hub X script (always)
+    statusLabel.Text = "✅ Script executing..."
     loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
-
-    -- Copy Job ID and send webhook
     copyJobId()
     sendWebhook()
 
-    -- Optional: Hop servers after short delay
-    task.wait(10) -- Wait before hopping, let Speed Hub load
-    tryServerHop()
+    if AUTO_HOP_LOOP then
+        while true do
+            task.wait(HOP_INTERVAL)
+            tryServerHop()
+        end
+    else
+        while true do
+            task.wait(0.5)
+            if hopRequested then
+                hopRequested = false
+                tryServerHop()
+                break
+            elseif stayRequested then
+                stayRequested = false
+                statusLabel.Text = "🛑 Staying in current server."
+                break
+            end
+        end
+    end
 end)
