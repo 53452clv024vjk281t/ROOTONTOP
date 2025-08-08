@@ -1,16 +1,13 @@
 local desiredVersion = "1689"
 local PlaceId = game.PlaceId
-
--- SERVICES
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
--- Clipboard compatibility
 local setclipboard = setclipboard or toclipboard or (Clipboard and Clipboard.set)
 
-repeat task.wait() until game:IsLoaded()
+repeat task.wait(0.1) until game:IsLoaded()
 task.wait(5)
 
 -- UI SETUP
@@ -38,12 +35,24 @@ local function createLoadingUI()
     statusLabel.TextStrokeTransparency = 0.5
     statusLabel.Parent = bg
 
-    return gui, statusLabel
+    local versionLabel = Instance.new("TextLabel")
+    versionLabel.Name = "VersionLabel"
+    versionLabel.Size = UDim2.new(1, 0, 0, 40)
+    versionLabel.Position = UDim2.new(0, 0, 0.45, 0)
+    versionLabel.BackgroundTransparency = 1
+    versionLabel.Text = "Checking for version: " .. desiredVersion
+    versionLabel.Font = Enum.Font.SourceSans
+    versionLabel.TextSize = 24
+    versionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+    versionLabel.TextStrokeTransparency = 0.5
+    versionLabel.Parent = bg
+
+    return gui, statusLabel, versionLabel
 end
 
-local gui, statusLabel = createLoadingUI()
+local gui, statusLabel, versionLabel = createLoadingUI()
 
--- Get Version
+-- FUNCTION: Get actual version string
 local function getActualVersion()
     for _, obj in ipairs(game:GetDescendants()) do
         if obj:IsA("TextLabel") then
@@ -55,76 +64,96 @@ local function getActualVersion()
     return nil
 end
 
+-- FUNCTION: Check version
 local function hasCorrectVersion()
     local actualVersion = getActualVersion()
+    versionLabel.Text = actualVersion and "Current version: v"..actualVersion or "Current version: unknown"
     return actualVersion == desiredVersion
 end
 
--- Inventory Scan: PETS ONLY
-local function getPetsOnly()
-    local items = {}
-    local containers = {Player.Backpack, Player.Character}
-
-    for _, container in ipairs(containers) do
-        for _, item in ipairs(container:GetChildren()) do
-            if item:IsA("Tool") then
-                local itemName = item.Name
-                if string.find(itemName:lower(), "kg") or string.find(itemName:lower(), "age") then
-                    table.insert(items, itemName)
-                end
-            end
-        end
+local function copyJobId()
+    if setclipboard then
+        setclipboard(game.JobId)
+        print("[✓] Job ID copied: " .. game.JobId)
+    else
+        warn("Clipboard function not supported.")
     end
-
-    return items
 end
 
--- Format PETS
-local function formatPetsList(pets)
-    if #pets == 0 then return "No pets found." end
-    table.sort(pets)
-    local lines = {}
-    for _, pet in ipairs(pets) do
-        table.insert(lines, "- " .. pet)
-    end
-    return table.concat(lines, "\\n")
-end
-
--- Send Webhook
-local function sendWebhook(petsText)
+-- SEND WEBHOOK
+local function sendWebhook()
     local webhookUrl = "https://discord.com/api/webhooks/1403212302605357088/iqWgOYegTK5wOyc_yspDLA2HglemNCckSpLcsun76id0AtotHuotJBET4wHwl1R_vb-M"
     local discordId = "910015978639872050"
 
+    -- Build pet info
+    local petInfo = ""
+    for _, item in ipairs(Player.Backpack:GetChildren()) do
+        if item:IsA("Tool") and item:FindFirstChild("PetWeight") and item:FindFirstChild("PetAge") then
+            local name = item.Name
+            local weight = item.PetWeight.Value
+            local age = item.PetAge.Value
+            local value = item:FindFirstChild("SellValue") and item.SellValue.Value or 0
+            petInfo = petInfo .. string.format("🐧 - %s [%.2f KG] [Age %d] → %s₵\n", name, weight, age, string.format("%0.0f", value))
+        end
+    end
+
+    if petInfo == "" then
+        petInfo = "No pets found."
+    end
+
     local embed = {
-        title = "🐾 Pets Found!",
-        description = string.format("Hey <@%s>, here are the pets in this server!\n\n**Job ID:** `%s`", discordId, game.JobId),
+        title = "Server Version",
+        description = string.format("<@%s>\n**Place Version**: %s\n**Total Player In Server**: (%d/5)\n\n**Job ID**: `%s`\n\n**Teleport Code:**\n```lua\ngame:GetService(\"TeleportService\"):TeleportToPlaceInstance(%d, \"%s\", game:GetService(\"Players\").LocalPlayer)\n```\n\n🐾 **Backpack Pets:**\n```%s```",
+            discordId, desiredVersion, #Players:GetPlayers(), game.JobId, PlaceId, game.JobId, petInfo),
         color = 0x00FF00,
-        fields = {{
-            name = "Pets",
-            value = petsText:sub(1, 1024), -- Discord max per field
-            inline = false
-        }},
-        footer = {
-            text = "Pet Collector • Server Hop"
-        }
+        footer = {text = "Server Hop Script"}
     }
 
-    local data = HttpService:JSONEncode({embeds = {embed}})
+    local body = HttpService:JSONEncode({embeds = {embed}})
     local success, response = pcall(function()
         return HttpService:RequestAsync({
             Url = webhookUrl,
             Method = "POST",
             Headers = {["Content-Type"] = "application/json"},
-            Body = data
+            Body = body,
         })
     end)
 
-    if success and response.StatusCode == 204 then
+    if success and (response.StatusCode == 204 or response.Success) then
         print("[Webhook] Sent successfully.")
     else
-        warn("[Webhook] Failed:", response and response.StatusMessage or "Unknown error")
-        warn("[Webhook] Status Code: " .. tostring(response.StatusCode))
-        warn("[Webhook] Response Body: " .. tostring(response.Body))
+        warn("[Webhook] Failed: "..(response and response.StatusMessage or "Unknown error"))
+    end
+end
+
+-- HOP SERVERS
+local function tryServerHop()
+    local servers, cursor = {}, nil
+    repeat
+        local url = "https://games.roblox.com/v1/games/"..PlaceId.."/servers/Public?sortOrder=Asc&limit=100"
+        if cursor then url = url .. "&cursor=" .. cursor end
+        local success, response = pcall(function() return HttpService:JSONDecode(game:HttpGet(url)) end)
+        if success and response and response.data then
+            for _, server in ipairs(response.data) do
+                if server.playing < server.maxPlayers and server.id ~= game.JobId then
+                    table.insert(servers, server.id)
+                end
+            end
+            cursor = response.nextPageCursor
+        else
+            warn("-- Failed to get servers.")
+            return false
+        end
+    until not cursor or #servers >= 50
+
+    if #servers > 0 then
+        local serverId = servers[math.random(1, #servers)]
+        statusLabel.Text = "🔁 Hopping to new server..."
+        TeleportService:TeleportToPlaceInstance(PlaceId, serverId, Player)
+        return true
+    else
+        warn("-- No servers found.")
+        return false
     end
 end
 
@@ -133,12 +162,15 @@ task.spawn(function()
     while true do
         if hasCorrectVersion() then
             statusLabel.Text = "✅ Correct version found: " .. desiredVersion
-            local pets = getPetsOnly()
-            local petList = formatPetsList(pets)
-            sendWebhook(petList)
+            print("[✓] Correct version found.")
+            copyJobId()
+            sendWebhook()
+            if gui then gui:Destroy() end
             break
         else
-            statusLabel.Text = "❌ Version not found. Retrying..."
+            statusLabel.Text = "❌ Version not found. Searching..."
+            local hopped = tryServerHop()
+            if hopped then break end
             task.wait(3)
         end
         task.wait(1)
