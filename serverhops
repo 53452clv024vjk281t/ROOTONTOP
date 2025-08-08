@@ -1,4 +1,4 @@
-local desiredVersion = "1681"
+local desiredVersion = "1681" -- You can still use this for webhook info
 local PlaceId = game.PlaceId
 
 -- SERVICES
@@ -48,7 +48,7 @@ local function createLoadingUI()
     versionLabel.Size = UDim2.new(1, 0, 0, 40)
     versionLabel.Position = UDim2.new(0, 0, 0.45, 0)
     versionLabel.BackgroundTransparency = 1
-    versionLabel.Text = "Checking for version: " .. desiredVersion
+    versionLabel.Text = "Running Speed Hub X..."
     versionLabel.Font = Enum.Font.SourceSans
     versionLabel.TextSize = 24
     versionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
@@ -72,31 +72,6 @@ end
 
 local gui, statusLabel, versionLabel = createLoadingUI()
 
--- FUNCTION: Get actual version string from game UI
-local function getActualVersion()
-    for _, obj in ipairs(game:GetDescendants()) do
-        if obj:IsA("TextLabel") then
-            local text = obj.Text
-            local version = string.match(text, "^v(%d+)$")
-            if version then
-                return version
-            end
-        end
-    end
-    return nil
-end
-
--- FUNCTION: Check if actual version matches desired
-local function hasCorrectVersion()
-    local actualVersion = getActualVersion()
-    if actualVersion then
-        versionLabel.Text = "Current version: v" .. actualVersion
-    else
-        versionLabel.Text = "Current version: unknown"
-    end
-    return actualVersion == desiredVersion
-end
-
 -- FUNCTION: Copy Job ID to clipboard
 local function copyJobId()
     if setclipboard then
@@ -107,44 +82,20 @@ local function copyJobId()
     end
 end
 
--- IMPROVED WEBHOOK FUNCTIONS
-local function SendMessageEmbed(url, embed)
-    local data = {
-        embeds = {embed}
-    }
-    local body = HttpService:JSONEncode(data)
-
-    local success, response = pcall(function()
-        return HttpService:RequestAsync({
-            Url = url,
-            Method = "POST",
-            Headers = {["Content-Type"] = "application/json"},
-            Body = body,
-        })
-    end)
-
-    if success and (response.StatusCode == 204 or response.Success) then
-        print("[Webhook] Embed sent successfully.")
-    else
-        warn("[Webhook] Failed to send embed:", response and response.StatusMessage or "Unknown error")
-    end
-end
-
--- FUNCTION: Send webhook with job info and ping user using improved function
+-- FUNCTION: Send webhook with job info
 local function sendWebhook()
     local webhookUrl = "https://discord.com/api/webhooks/1403212302605357088/iqWgOYegTK5wOyc_yspDLA2HglemNCckSpLcsun76id0AtotHuotJBET4wHwl1R_vb-M"
     local players = #Players:GetPlayers()
     local maxPlayers = Players.MaxPlayers or 0
 
     local embed = {
-        title = "Server Version",
+        title = "Speed Hub Joined Server",
         description = string.format(
-            "**Place Version:** %s\n\n" ..
-            "**Total Player In Server**\n(%d/%d)\n\n" ..
-            "**Job ID:**\n%s\n\n" ..
+            "**Desired Version:** %s\n\n" ..
+            "**Players:** %d/%d\n\n" ..
+            "**Job ID:** `%s`\n\n" ..
             "**Teleport Code:**\n```lua\n" ..
-            "game:GetService(\"TeleportService\"):TeleportToPlaceInstance(%d, \"%s\", game:GetService(\"Players\").LocalPlayer)\n" ..
-            "```",
+            "game:GetService(\"TeleportService\"):TeleportToPlaceInstance(%d, \"%s\", game:GetService(\"Players\").LocalPlayer)\n```",
             desiredVersion,
             players, maxPlayers,
             game.JobId,
@@ -152,15 +103,22 @@ local function sendWebhook()
             game.JobId
         ),
         color = 0x00FF00,
-        footer = {
-            text = "Server Hop Script"
-        }
+        footer = { text = "Auto Speed Hub Loader" }
     }
 
-    SendMessageEmbed(webhookUrl, embed)
+    local data = HttpService:JSONEncode({ embeds = { embed } })
+
+    pcall(function()
+        HttpService:RequestAsync({
+            Url = webhookUrl,
+            Method = "POST",
+            Headers = { ["Content-Type"] = "application/json" },
+            Body = data,
+        })
+    end)
 end
 
--- FUNCTION: Server hop to a random public server with cursor pagination (improved)
+-- FUNCTION: Server hop to a random public server
 local function tryServerHop()
     local servers = {}
     local cursor = nil
@@ -186,7 +144,7 @@ local function tryServerHop()
             warn("-- Failed to get server list.")
             return false
         end
-    until not cursor or #servers >= 50 -- stops early once 50 servers collected for performance
+    until not cursor or #servers >= 50
 
     if #servers > 0 then
         local randomServerId = servers[math.random(1, #servers)]
@@ -199,30 +157,20 @@ local function tryServerHop()
     end
 end
 
--- MAIN LOOP
+-- MAIN
 task.spawn(function()
-    while true do
-        if hasCorrectVersion() then
-            statusLabel.Text = "✅ Correct version found: " .. desiredVersion
-            print("[✓] Correct version found.")
-            copyJobId()
+    -- Show status
+    statusLabel.Text = "✅ Speed Hub X executing..."
+    print("[✓] Executing Speed Hub X...")
 
-            -- Send webhook and destroy UI
-            sendWebhook()
-            if gui then
-                gui:Destroy()
-            end
+    -- Execute the Speed Hub X script (always)
+    loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
 
-            break -- stop after success
-        else
-            statusLabel.Text = "❌ Version not found. Searching..."
-            local hopped = tryServerHop()
-            if hopped then
-                break -- stop loop once teleport starts
-            else
-                task.wait(3) -- wait before retrying if teleport failed
-            end
-        end
-        task.wait(1)
-    end
+    -- Copy Job ID and send webhook
+    copyJobId()
+    sendWebhook()
+
+    -- Optional: Hop servers after short delay
+    task.wait(10) -- Wait before hopping, let Speed Hub load
+    tryServerHop()
 end)
