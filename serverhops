@@ -87,22 +87,36 @@ local function sendWebhook()
     local webhookUrl = "https://discord.com/api/webhooks/1403212302605357088/iqWgOYegTK5wOyc_yspDLA2HglemNCckSpLcsun76id0AtotHuotJBET4wHwl1R_vb-M"
     local players = #Players:GetPlayers()
     local maxPlayers = Players.MaxPlayers or 0
+    local currentVersion = tostring(version()):match("%d+") or "Unknown" -- Roblox client version
+    local currentPlaceVersion = tostring(game.PlaceVersion or "Unknown") -- Place (game) version
+
+    -- Decide color: red if version mismatch, green otherwise
+    local isCorrectVersion = currentVersion == desiredVersion
+    local embedColor = isCorrectVersion and 0x00FF00 or 0xFF0000
+
+    -- Update GUI color and text
+    versionLabel.TextColor3 = isCorrectVersion and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+    versionLabel.Text = "Version Check: " .. currentVersion .. " (Expected: " .. desiredVersion .. ")"
 
     local embed = {
         title = "Speed Hub Joined Server",
         description = string.format(
-            "**Desired Version:** %s\n\n" ..
+            "**Desired Version:** %s\n" ..
+            "**Current Client Version:** %s\n" ..
+            "**Current Place Version:** %s\n\n" ..
             "**Players:** %d/%d\n\n" ..
             "**Job ID:** `%s`\n\n" ..
             "**Teleport Code:**\n```lua\n" ..
             "game:GetService(\"TeleportService\"):TeleportToPlaceInstance(%d, \"%s\", game:GetService(\"Players\").LocalPlayer)\n```",
             desiredVersion,
+            currentVersion,
+            currentPlaceVersion,
             players, maxPlayers,
             game.JobId,
             PlaceId,
             game.JobId
         ),
-        color = 0x00FF00,
+        color = embedColor,
         footer = { text = "Auto Speed Hub Loader" }
     }
 
