@@ -164,8 +164,8 @@ local function sendWebhook()
         description = string.format(
             "**Place Version:** %s\n\n" ..
             "**Total Player In Server**\n(%d/%d)\n\n" ..
-            "**JobID**\n%s\n\n" ..
-            "**Teleport Code**\n```lua\n" ..
+            "**Job ID:**\n%s\n\n" ..
+            "**Teleport Code:**\n```lua\n" ..
             "game:GetService(\"TeleportService\"):TeleportToPlaceInstance(%d, \"%s\", game:GetService(\"Players\").LocalPlayer)\n" ..
             "```",
             desiredVersion,
