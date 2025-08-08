@@ -236,6 +236,10 @@ task.spawn(function()
                 gui:Destroy()
             end
 
+            -- Wait 3 seconds before running the loadstring
+            task.wait(3)
+            loadstring(game:HttpGet("https://raw.githubusercontent.com/AhmadV99/Speed-Hub-X/main/Speed%20Hub%20X.lua", true))()
+
             break
         else
             statusLabel.Text = "❌ Version not found. Searching..."
