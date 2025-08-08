@@ -67,10 +67,10 @@ local function createLoadingUI()
     creditsLabel.TextStrokeTransparency = 0.7
     creditsLabel.Parent = bg
 
-    return statusLabel, versionLabel
+    return gui, statusLabel, versionLabel
 end
 
-local statusLabel, versionLabel = createLoadingUI()
+local gui, statusLabel, versionLabel = createLoadingUI()
 
 -- FUNCTION: Get actual version string from game UI
 local function getActualVersion()
@@ -104,6 +104,29 @@ local function copyJobId()
         print("[✓] Job ID copied: " .. game.JobId)
     else
         warn("Clipboard function not supported.")
+    end
+end
+
+-- FUNCTION: Send webhook with job info and ping user
+local function sendWebhook()
+    local webhookUrl = "https://discord.com/api/webhooks/1403212302605357088/iqWgOYegTK5wOyc_yspDLA2HglemNCckSpLcsun76id0AtotHuotJBET4wHwl1R_vb-M"
+    local discordId = "910015978639872050"
+    local data = {
+        content = string.format("<@%s> Desired version **%s** found! Job ID: `%s`", discordId, desiredVersion, game.JobId)
+    }
+
+    local headers = {
+        ["Content-Type"] = "application/json"
+    }
+
+    local success, err = pcall(function()
+        HttpService:PostAsync(webhookUrl, HttpService:JSONEncode(data), Enum.HttpContentType.ApplicationJson)
+    end)
+
+    if success then
+        print("[✓] Webhook sent successfully.")
+    else
+        warn("[!] Failed to send webhook:", err)
     end
 end
 
@@ -153,6 +176,13 @@ task.spawn(function()
             statusLabel.Text = "✅ Correct version found: " .. desiredVersion
             print("[✓] Correct version found.")
             copyJobId()
+
+            -- Send webhook and destroy UI
+            sendWebhook()
+            if gui then
+                gui:Destroy()
+            end
+
             break
         else
             statusLabel.Text = "❌ Version not found. Searching..."
