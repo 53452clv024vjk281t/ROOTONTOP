@@ -126,7 +126,7 @@ end
 
 -- Webhook (CHANGE THE WEBHOOK URL IF YOU WANT TO BE NOTIFIES)
 
-local function sendWebhook() -
+local function sendWebhook()
     local webhookUrl = "YOUR WEBHOOK URL"
     local players = #Players:GetPlayers()
     local maxPlayers = Players.MaxPlayers or 0
