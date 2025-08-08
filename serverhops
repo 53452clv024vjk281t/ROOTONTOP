@@ -1,4 +1,4 @@
-local desiredVersion = "1681"
+local desiredVersion = "1689"
 local PlaceId = game.PlaceId
 local AUTO_HOP_LOOP = true        -- Set to true to keep hopping automatically between servers
 local AUTO_TELEPORT_LOOP = true  -- Set to true to keep teleporting to specific place instance automatically
