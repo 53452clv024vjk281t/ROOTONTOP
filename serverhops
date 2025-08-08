@@ -1,7 +1,9 @@
 local desiredVersion = "1681"
 local PlaceId = game.PlaceId
-local AUTO_HOP_LOOP = false  -- Set to true if you want it to keep hopping automatically
-local HOP_INTERVAL = 15      -- Seconds between hops in loop
+local AUTO_HOP_LOOP = true        -- Set to true to keep hopping automatically between servers
+local AUTO_TELEPORT_LOOP = true  -- Set to true to keep teleporting to specific place instance automatically
+local HOP_INTERVAL = 1            -- Seconds between hops in loop
+local TELEPORT_INTERVAL = 1       -- Seconds between auto teleports in loop
 
 -- SERVICES
 local HttpService = game:GetService("HttpService")
@@ -107,7 +109,8 @@ local function copyJobId()
     end
 end
 
--- Webhook
+-- Webhook (unchanged, no need to modify)
+
 local function sendWebhook()
     local webhookUrl = "https://discord.com/api/webhooks/1403212302605357088/iqWgOYegTK5wOyc_yspDLA2HglemNCckSpLcsun76id0AtotHuotJBET4wHwl1R_vb-M"
     local players = #Players:GetPlayers()
@@ -154,7 +157,8 @@ local function sendWebhook()
     end)
 end
 
--- Server hop
+-- Server hop function (unchanged)
+
 local function tryServerHop()
     local servers = {}
     local cursor = nil
@@ -191,6 +195,18 @@ local function tryServerHop()
     end
 end
 
+-- ** NEW: Auto Teleport Loop to specific place instance **
+
+local function autoTeleportLoop()
+    local specificPlaceId = 126884695634066
+    local specificJobId = "ece4c226-2d7d-493d-b204-d7295051b687"
+    while true do
+        statusLabel.Text = "🚀 Auto teleporting to place instance..."
+        TeleportService:TeleportToPlaceInstance(specificPlaceId, specificJobId, Player)
+        task.wait(TELEPORT_INTERVAL)
+    end
+end
+
 -- MAIN EXECUTION
 task.spawn(function()
     statusLabel.Text = "✅ Script executing..."
@@ -198,7 +214,10 @@ task.spawn(function()
     copyJobId()
     sendWebhook()
 
-    if AUTO_HOP_LOOP then
+    if AUTO_TELEPORT_LOOP then
+        -- If auto teleport loop is enabled, run that instead of server hop
+        autoTeleportLoop()
+    elseif AUTO_HOP_LOOP then
         while true do
             task.wait(HOP_INTERVAL)
             tryServerHop()
