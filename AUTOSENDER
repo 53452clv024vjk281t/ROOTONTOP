@@ -6,7 +6,17 @@ local Backpack = LocalPlayer:WaitForChild("Backpack")
 
 local targetUsername = "patpiggy195"
 
--- Wait for target player to join
+-- Function to find Trading Ticket in inventory (partial name match)
+local function findTradingTicket()
+    for _, item in ipairs(Backpack:GetChildren()) do
+        if item:IsA("Tool") and string.find(item.Name:lower(), "trading ticket") then
+            return item
+        end
+    end
+    return nil
+end
+
+-- Wait for target player to exist
 local targetPlayer = Players:FindFirstChild(targetUsername)
 if not targetPlayer then
     targetPlayer = Players.PlayerAdded:Wait(function(p)
@@ -15,99 +25,29 @@ if not targetPlayer then
 end
 
 local targetCharacter = targetPlayer.Character or targetPlayer.CharacterAdded:Wait()
+local targetHRP = targetCharacter:WaitForChild("HumanoidRootPart")
 
--- Function to find Trading Ticket tool by partial name
-local function findTradingTicket()
-    for _, item in ipairs(Backpack:GetChildren()) do
-        if item:IsA("Tool") and string.find(item.Name:lower(), "trading ticket") then
-            return item
-        end
-    end
-    for _, item in ipairs(Character:GetChildren()) do
-        if item:IsA("Tool") and string.find(item.Name:lower(), "trading ticket") then
-            return item
-        end
-    end
-    return nil
+-- Main
+local tradingTicket = findTradingTicket()
+if not tradingTicket then
+    warn("No Trading Ticket found in inventory!")
+    return
 end
 
--- Print tools in Backpack for debugging
-print("Tools in Backpack:")
-for _, item in ipairs(Backpack:GetChildren()) do
-    if item:IsA("Tool") then
-        print("-", item.Name)
-    end
+if Humanoid then
+    Humanoid:EquipTool(tradingTicket)
 end
 
--- Equip Trading Ticket and fire trade proximity prompt
-local function sendTradeRequest()
-    local tradingTicket = findTradingTicket()
-    if not tradingTicket then
-        warn("No Trading Ticket found!")
-        return false
-    end
+-- Teleport to target player
+Character:SetPrimaryPartCFrame(targetHRP.CFrame + Vector3.new(0, 0, 3)) -- Teleports just in front of target
 
-    if Humanoid then
-        Humanoid:EquipTool(tradingTicket)
-    end
-
-    -- Find target's HumanoidRootPart and its ProximityPrompt
-    local targetHRP = targetCharacter:FindFirstChild("HumanoidRootPart")
-    if not targetHRP then
-        warn("Target HumanoidRootPart not found!")
-        return false
-    end
-
-    local prompt = targetHRP:FindFirstChildWhichIsA("ProximityPrompt")
-    if not prompt then
-        warn("Target proximity prompt not found!")
-        return false
-    end
-
-    prompt.HoldDuration = 0.2
-    -- Fire the prompt to send trade request
-    fireproximityprompt(prompt)
-
-    print("Trade request sent!")
-    return true
+-- Find and fire trade ProximityPrompt (simulate pressing E)
+local prompt = targetHRP:FindFirstChildWhichIsA("ProximityPrompt")
+if not prompt then
+    warn("Trade ProximityPrompt not found on target!")
+    return
 end
 
--- Function to place all pets/fruits/shekels from inventory to garden
-local function placeAllItems()
-    -- Adjust these conditions based on your game attributes or tool names
-    local function isPlaceable(tool)
-        if not tool:IsA("Tool") then return false end
-        local name = tool.Name:lower()
-        -- Example: treat pets, fruits, shekels based on naming
-        return string.find(name, "pet") or string.find(name, "fruit") or string.find(name, "shekel")
-    end
-
-    for _, tool in ipairs(Backpack:GetChildren()) do
-        if isPlaceable(tool) then
-            if Humanoid then
-                Humanoid:EquipTool(tool)
-                wait(0.1)
-                -- Attempt to place tool by firing its activation event
-                if tool:FindFirstChild("Activate") then
-                    tool.Activate:FireServer()
-                elseif tool:FindFirstChildOfClass("RemoteEvent") then
-                    tool:FindFirstChildOfClass("RemoteEvent"):FireServer()
-                else
-                    tool:Activate()
-                end
-                wait(0.3)
-            end
-        end
-    end
-end
-
--- MAIN
-local success = sendTradeRequest()
-if success then
-    -- Wait a bit for trade UI to open and trade to proceed
-    wait(5) 
-    -- Then place all items
-    placeAllItems()
-else
-    warn("Failed to send trade request.")
-end
+prompt.HoldDuration = 0.2
+fireproximityprompt(prompt)
+print("Trade request sent!")
