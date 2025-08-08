@@ -51,10 +51,15 @@ if not prompt then
     return
 end
 
--- Set hold duration if needed
-prompt.HoldDuration = prompt.HoldDuration or 1 -- default 1 sec if none
+-- Manually hold the prompt for HoldDuration seconds
+local holdDuration = prompt.HoldDuration or 1
+local elapsed = 0
+local dt = 0.1
 
--- Fire proximity prompt with hold
-fireproximityprompt(prompt, prompt.HoldDuration)
+while elapsed < holdDuration do
+    fireproximityprompt(prompt)
+    wait(dt)
+    elapsed = elapsed + dt
+end
 
-print("Trade request sent after holding prompt for ".. tostring(prompt.HoldDuration) .." seconds!")
+print("Trade request sent after holding prompt for ".. tostring(holdDuration) .." seconds!")
