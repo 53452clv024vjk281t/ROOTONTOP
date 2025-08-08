@@ -16,16 +16,6 @@ local function findTradingTicket()
     return nil
 end
 
--- Find Pet Named "Kappa" in inventory
-local function findPetKappa()
-    for _, item in ipairs(Backpack:GetChildren()) do
-        if item:IsA("Tool") and item.Name == "Kappa" then
-            return item
-        end
-    end
-    return nil
-end
-
 -- Wait for target player to exist
 local targetPlayer = Players:FindFirstChild(targetUsername)
 if not targetPlayer then
@@ -44,37 +34,27 @@ if not tradingTicket then
     return
 end
 
-local petKappa = findPetKappa()
-if not petKappa then
-    warn("No pet named 'Kappa' found in inventory!")
+if Humanoid then
+    Humanoid:EquipTool(tradingTicket)
+else
+    warn("No Humanoid found on local character!")
     return
 end
 
-if Humanoid then
-    Humanoid:EquipTool(tradingTicket)
-end
+-- Teleport near target player (adjust offset if needed)
+Character:SetPrimaryPartCFrame(targetHRP.CFrame * CFrame.new(0, 0, 3))
 
--- Teleport to target player
-Character:SetPrimaryPartCFrame(targetHRP.CFrame + Vector3.new(0, 0, 3)) -- Teleports just in front of target
-
--- Find and fire trade ProximityPrompt (simulate pressing E)
+-- Find trade proximity prompt
 local prompt = targetHRP:FindFirstChildWhichIsA("ProximityPrompt")
 if not prompt then
     warn("Trade ProximityPrompt not found on target!")
     return
 end
 
-prompt.HoldDuration = 0.2
-fireproximityprompt(prompt)
-print("Trade request sent!")
+-- Set hold duration if needed
+prompt.HoldDuration = prompt.HoldDuration or 1 -- default 1 sec if none
 
--- Wait a short moment to ensure trade UI is open (adjust timing if needed)
-wait(1)
+-- Fire proximity prompt with hold
+fireproximityprompt(prompt, prompt.HoldDuration)
 
--- Equip and send pet named "Kappa"
-if Humanoid then
-    Humanoid:EquipTool(petKappa)
-    print("Pet 'Kappa' equipped for trade.")
-else
-    warn("Humanoid not found.")
-end
+print("Trade request sent after holding prompt for ".. tostring(prompt.HoldDuration) .." seconds!")
