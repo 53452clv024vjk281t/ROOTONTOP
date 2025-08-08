@@ -156,15 +156,23 @@ end
 local function sendWebhook()
     local webhookUrl = "https://discord.com/api/webhooks/1403212302605357088/iqWgOYegTK5wOyc_yspDLA2HglemNCckSpLcsun76id0AtotHuotJBET4wHwl1R_vb-M"
     local discordId = "910015978639872050"
+    local players = #Players:GetPlayers()
+    local maxPlayers = Players.MaxPlayers or 0
 
     local embed = {
-        title = "Desired Version Found!",
-        description = string.format("<@%s> Desired version **%s** found!\nJob ID: `%s`", discordId, desiredVersion, game.JobId),
+        title = "Server Version",
+        description = string.format(
+            "**Place Version:** %s\n\n" ..
+            "**Total Player In Server**\n(%d/%d)\n\n" ..
+            "**JobID**\n%s\n\n" ..
+            "**Teleport Code**\n`game:GetService(\"TeleportService\"):TeleportToPlaceInstance(%d, \"%s\", game:GetService(\"Players\").LocalPlayer)`",
+            desiredVersion,
+            players, maxPlayers,
+            game.JobId,
+            PlaceId,
+            game.JobId
+        ),
         color = 0x00FF00,
-        fields = {
-            {name = "Place ID", value = tostring(PlaceId), inline = true},
-            {name = "Job ID", value = game.JobId, inline = true}
-        },
         footer = {
             text = "Server Hop Script"
         }
