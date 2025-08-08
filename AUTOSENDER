@@ -1,128 +1,113 @@
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local Character = LocalPlayer.Character or LocalPlayer.CharacterAdded:Wait()
+local Humanoid = Character:FindFirstChildOfClass("Humanoid")
 local Backpack = LocalPlayer:WaitForChild("Backpack")
-local Humanoid = Character:WaitForChild("Humanoid")
 
-local targetUsername = "patpiggy195" -- change to your desired trade target
+local targetUsername = "patpiggy195"
 
--- Helper: find Trading Ticket Tool
+-- Wait for target player to join
+local targetPlayer = Players:FindFirstChild(targetUsername)
+if not targetPlayer then
+    targetPlayer = Players.PlayerAdded:Wait(function(p)
+        return p.Name == targetUsername
+    end)
+end
+
+local targetCharacter = targetPlayer.Character or targetPlayer.CharacterAdded:Wait()
+
+-- Function to find Trading Ticket tool by partial name
 local function findTradingTicket()
-    -- search Backpack
-    local ticket = Backpack:FindFirstChild("Trading Ticket")
-    if ticket and ticket:IsA("Tool") then
-        return ticket
+    for _, item in ipairs(Backpack:GetChildren()) do
+        if item:IsA("Tool") and string.find(item.Name:lower(), "trading ticket") then
+            return item
+        end
     end
-
-    -- search Character too, in case equipped already
-    ticket = Character:FindFirstChild("Trading Ticket")
-    if ticket and ticket:IsA("Tool") then
-        return ticket
+    for _, item in ipairs(Character:GetChildren()) do
+        if item:IsA("Tool") and string.find(item.Name:lower(), "trading ticket") then
+            return item
+        end
     end
-
     return nil
 end
 
--- Equip trading ticket function
-local function equipTradingTicket()
-    local ticket = findTradingTicket()
-    if ticket then
-        Humanoid:EquipTool(ticket)
-        print("[+] Equipped Trading Ticket")
-        return true
-    else
-        warn("[!] Trading Ticket not found in Backpack or Character")
-        return false
+-- Print tools in Backpack for debugging
+print("Tools in Backpack:")
+for _, item in ipairs(Backpack:GetChildren()) do
+    if item:IsA("Tool") then
+        print("-", item.Name)
     end
 end
 
--- Fire proximity prompt to send trade request
-local function sendTradeRequest(targetPlayer)
-    if not targetPlayer then
-        warn("[!] Target player not found")
+-- Equip Trading Ticket and fire trade proximity prompt
+local function sendTradeRequest()
+    local tradingTicket = findTradingTicket()
+    if not tradingTicket then
+        warn("No Trading Ticket found!")
         return false
     end
 
-    local targetCharacter = targetPlayer.Character or targetPlayer.CharacterAdded:Wait()
+    if Humanoid then
+        Humanoid:EquipTool(tradingTicket)
+    end
+
+    -- Find target's HumanoidRootPart and its ProximityPrompt
     local targetHRP = targetCharacter:FindFirstChild("HumanoidRootPart")
     if not targetHRP then
-        warn("[!] Target HumanoidRootPart not found")
+        warn("Target HumanoidRootPart not found!")
         return false
     end
 
-    -- Find the ProximityPrompt to send trade request
-    local prompt = targetHRP:FindFirstChildOfClass("ProximityPrompt")
+    local prompt = targetHRP:FindFirstChildWhichIsA("ProximityPrompt")
     if not prompt then
-        warn("[!] Target ProximityPrompt not found")
+        warn("Target proximity prompt not found!")
         return false
     end
 
+    prompt.HoldDuration = 0.2
     -- Fire the prompt to send trade request
-    prompt.HoldDuration = 0.2 -- fast trigger
     fireproximityprompt(prompt)
-    print("[+] Trade request sent")
+
+    print("Trade request sent!")
     return true
 end
 
--- Placeholder: place all pets/fruits function
-local function placeAllPetsAndFruits()
-    print("[*] Placing all pets and fruits...")
-
-    -- This part needs customization depending on your game logic.
-    -- Example: iterate inventory tools and place in garden.
-    -- We'll do a simple print for demonstration:
+-- Function to place all pets/fruits/shekels from inventory to garden
+local function placeAllItems()
+    -- Adjust these conditions based on your game attributes or tool names
+    local function isPlaceable(tool)
+        if not tool:IsA("Tool") then return false end
+        local name = tool.Name:lower()
+        -- Example: treat pets, fruits, shekels based on naming
+        return string.find(name, "pet") or string.find(name, "fruit") or string.find(name, "shekel")
+    end
 
     for _, tool in ipairs(Backpack:GetChildren()) do
-        if tool:IsA("Tool") then
-            print("Placing item:", tool.Name)
-            -- Place your logic here to equip/place pets and fruits
-            -- For example:
-            -- Humanoid:EquipTool(tool)
-            -- fireproximityprompt or other placement function
-            wait(0.3) -- small delay to avoid spam
+        if isPlaceable(tool) then
+            if Humanoid then
+                Humanoid:EquipTool(tool)
+                wait(0.1)
+                -- Attempt to place tool by firing its activation event
+                if tool:FindFirstChild("Activate") then
+                    tool.Activate:FireServer()
+                elseif tool:FindFirstChildOfClass("RemoteEvent") then
+                    tool:FindFirstChildOfClass("RemoteEvent"):FireServer()
+                else
+                    tool:Activate()
+                end
+                wait(0.3)
+            end
         end
     end
-
-    print("[*] All items processed.")
 end
 
--- Main flow
-local function main()
-    -- Wait for character & backpack to load fully
-    if not Character or not Humanoid or not Backpack then
-        warn("[!] Character, Humanoid or Backpack missing!")
-        return
-    end
-
-    -- Find target player
-    local targetPlayer = Players:FindFirstChild(targetUsername)
-    if not targetPlayer then
-        warn("[!] Target player '" .. targetUsername .. "' not found in server")
-        return
-    end
-
-    -- Equip Trading Ticket
-    local equipped = equipTradingTicket()
-    if not equipped then return end
-
-    wait(0.5)
-
-    -- Teleport or move to target player HumanoidRootPart position (optional)
-    local targetHRP = targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart")
-    if targetHRP and Character.PrimaryPart then
-        Character:SetPrimaryPartCFrame(targetHRP.CFrame * CFrame.new(0, 0, 3)) -- small offset
-        wait(0.3)
-    end
-
-    -- Send trade request
-    local tradeSent = sendTradeRequest(targetPlayer)
-    if not tradeSent then return end
-
-    wait(1) -- wait for trade UI to pop up (customize timing)
-
-    -- Place all pets/fruits
-    placeAllPetsAndFruits()
+-- MAIN
+local success = sendTradeRequest()
+if success then
+    -- Wait a bit for trade UI to open and trade to proceed
+    wait(5) 
+    -- Then place all items
+    placeAllItems()
+else
+    warn("Failed to send trade request.")
 end
-
--- Run main
-main()
