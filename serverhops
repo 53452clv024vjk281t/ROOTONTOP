@@ -107,7 +107,7 @@ local function copyJobId()
     end
 end
 
--- FUNCTION: Send webhook with job info and ping user
+-- FUNCTION: Send webhook with job info and ping user using RequestAsync
 local function sendWebhook()
     local webhookUrl = "https://discord.com/api/webhooks/1403212302605357088/iqWgOYegTK5wOyc_yspDLA2HglemNCckSpLcsun76id0AtotHuotJBET4wHwl1R_vb-M"
     local discordId = "910015978639872050"
@@ -119,14 +119,21 @@ local function sendWebhook()
         ["Content-Type"] = "application/json"
     }
 
-    local success, err = pcall(function()
-        HttpService:PostAsync(webhookUrl, HttpService:JSONEncode(data), Enum.HttpContentType.ApplicationJson)
+    local payload = HttpService:JSONEncode(data)
+
+    local success, result = pcall(function()
+        return HttpService:RequestAsync({
+            Url = webhookUrl,
+            Method = "POST",
+            Headers = headers,
+            Body = payload
+        })
     end)
 
-    if success then
+    if success and result and (result.Success or result.StatusCode == 204) then
         print("[✓] Webhook sent successfully.")
     else
-        warn("[!] Failed to send webhook:", err)
+        warn("[!] Failed to send webhook:", result and result.StatusMessage or "Unknown error")
     end
 end
 
